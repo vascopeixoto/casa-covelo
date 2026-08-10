@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2f6b4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Moradia T3 — Covelo · Gondomar (modelo 3D)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { font-family:-apple-system, 'Segoe UI', Roboto, sans-serif; overflow:hidden; background:#dfe6e0; overscroll-behavior:none; }
+  #app { display:flex; height:100vh; height:100dvh; }
+  button, a { touch-action:manipulation; }
+  #painel {
+    width:330px; min-width:330px; background:#ffffff; padding:22px 20px; overflow-y:auto;
+    box-shadow:2px 0 12px rgba(0,0,0,.12); z-index:10;
+  }
+  #painel h1 { font-size:19px; color:#1e2a24; margin-bottom:2px; }
+  #painel .sub { font-size:12.5px; color:#7a8580; margin-bottom:16px; }
+  .bloco { margin-bottom:16px; }
+  .bloco h2 { font-size:12px; text-transform:uppercase; letter-spacing:.8px; color:#5a8a6e; margin-bottom:7px; }
+  .linha { display:flex; justify-content:space-between; font-size:13px; color:#2c3630; padding:3.5px 0; border-bottom:1px solid #f0f2f0; gap:8px; }
+  .linha b { font-weight:600; text-align:right; }
+  .nota { font-size:11.5px; color:#8a938e; margin-top:8px; line-height:1.45; }
+  .orc { background:#f2f7f3; border-radius:10px; padding:12px 14px; }
+  .orc .linha { border-bottom:1px solid #e2ece4; }
+  .orc .total { border-top:2px solid #5a8a6e; border-bottom:none; margin-top:4px; padding-top:7px; }
+  .alerta { color:#a05a2c; font-weight:600; }
+  #vistas { position:absolute; top:18px; left:352px; display:flex; gap:8px; z-index:20; }
+  #vistas button {
+    padding:9px 16px; border:none; border-radius:8px; background:#ffffffd9; color:#2c3630;
+    font-size:13.5px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15); backdrop-filter:blur(4px);
+  }
+  #vistas button.ativo { background:#2f6b4a; color:#fff; }
+  #dica { position:absolute; bottom:14px; left:352px; font-size:12px; color:#4a554f; background:#ffffffb0; padding:5px 10px; border-radius:6px; z-index:20; }
+  canvas { display:block; }
+  #vistas a { padding:9px 16px; border-radius:8px; background:#2f6b4a; color:#fff; font-size:13.5px; font-weight:600; text-decoration:none; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+  @media (max-width: 768px){
+    #app { flex-direction:column; }
+    #cena { order:1; flex:1; min-height:55dvh; }
+    #painel { order:2; width:100%; min-width:0; max-height:38dvh; padding:14px 14px;
+      padding-bottom:calc(14px + env(safe-area-inset-bottom));
+      padding-left:calc(14px + env(safe-area-inset-left));
+      padding-right:calc(14px + env(safe-area-inset-right));
+      -webkit-overflow-scrolling:touch; }
+    #vistas { left:calc(10px + env(safe-area-inset-left)); top:calc(10px + env(safe-area-inset-top)); right:calc(10px + env(safe-area-inset-right)); flex-wrap:wrap; }
+    #dica { display:none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="painel">
+    <h1>Moradia T3 — Covelo</h1>
+    <div class="sub">Gondomar · construção nova · reboco pintado · modelo ilustrativo</div>
+
+    <div class="bloco">
+      <h2>Resumo</h2>
+      <div class="linha"><span>Lote (est. fotos)</span><b>~9,5 × 30 m (~285 m²)</b></div>
+      <div class="linha"><span>Tipologia</span><b>T3, 2 pisos</b></div>
+      <div class="linha"><span>Implantação</span><b>6,8 × 10,3 m</b></div>
+      <div class="linha"><span>Área bruta</span><b>~140 m² (70 / piso)</b></div>
+      <div class="linha"><span>Acabamento</span><b>Reboco pintado (económico)</b></div>
+      <div class="linha"><span>Vãos</span><b>Grandes, caixilharia standard, c/ acesso ext.</b></div>
+      <div class="linha"><span>Implantação no lote</span><b>Encostada à estrema poente</b></div>
+      <div class="linha"><span>Passagem lateral p/ trás</span><b>~2,7 m (nascente)</b></div>
+      <div class="linha"><span>Coberto (fase 1)</span><b>Só carros, ~7 m</b></div>
+      <div class="linha"><span>Terraço traseiro (calçada, descoberto)</span><b>~33 m²</b></div>
+    </div>
+
+    <div class="bloco">
+      <h2>Piso 0 — social (~70 m²)</h2>
+      <div class="linha"><span>Sala + jantar (fundo/jardim)</span><b>~26 m²</b></div>
+      <div class="linha"><span>Cozinha (frente/rua, aberta à sala)</span><b>~10 m²</b></div>
+      <div class="linha"><span>Hall + corredor de distribuição</span><b>~4,5 + 4 m²</b></div>
+      <div class="linha"><span>WC serviço + lavandaria (sob escada)</span><b>~3 + 3 m²</b></div>
+    </div>
+
+    <div class="bloco">
+      <h2>Piso 1 — privado (~70 m²)</h2>
+      <div class="linha"><span>Suite c/ WC (fundo)</span><b>~14 + 4 m²</b></div>
+      <div class="linha"><span>Quartos 2 e 3 (lado a lado, rua)</span><b>~11 + 11 m²</b></div>
+      <div class="linha"><span>WC família</span><b>~4,5 m²</b></div>
+      <div class="linha"><span>Guarda-fatos embutidos</span><b>nos 3 quartos</b></div>
+      <div class="linha"><span>Varanda coberta (fundo/jardim)</span><b>~7 m²</b></div>
+    </div>
+
+    <a href="orcamento.html" style="display:block; text-align:center; background:#2f6b4a; color:#fff; text-decoration:none; padding:13px 16px; border-radius:10px; font-weight:600; font-size:14.5px; margin-top:4px;">Ver detalhes de preços →</a>
+    <div class="nota" style="font-size:11.5px; color:#8a938e; margin-top:10px; line-height:1.45;">Dimensões do lote estimadas das fotos — confirmar na caderneta. Volumetria e áreas indicativas.</div>
+  </div>
+
+  <div id="vistas">
+    <button id="btnExt" class="ativo">Exterior</button>
+    <button id="btnP0">Piso 0</button>
+    <button id="btnP1">Piso 1</button>
+    <a href="orcamento.html">€ Orçamento</a>
+  </div>
+  <div id="dica">Arrastar = rodar · Scroll = zoom · Botão direito = mover</div>
+  <div id="cena" style="flex:1; position:relative;"></div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const cont = document.getElementById('cena');
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+cont.appendChild(renderer.domElement);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+// céu em gradiente
+{
+  const cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
+  const c = cv.getContext('2d');
+  const g = c.createLinearGradient(0, 0, 0, 512);
+  g.addColorStop(0, '#7db3e0'); g.addColorStop(0.55, '#bcd6ea'); g.addColorStop(1, '#e8eef0');
+  c.fillStyle = g; c.fillRect(0, 0, 16, 512);
+  scene.background = new THREE.CanvasTexture(cv);
+  scene.fog = new THREE.Fog(0xdde6e8, 70, 160);
+}
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.maxPolarAngle = Math.PI/2 - 0.02;
+controls.enableDamping = true;
+
+function resize(){
+  const w = cont.clientWidth, h = cont.clientHeight;
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+}
+window.addEventListener('resize', resize);
+
+// ---------- Luzes ----------
+scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+const sol = new THREE.DirectionalLight(0xfff2dd, 2.2);
+sol.position.set(26, 30, 9);
+renderer.toneMappingExposure = 1.12;
+sol.castShadow = true;
+sol.shadow.mapSize.set(4096, 4096);
+sol.shadow.camera.left = -35; sol.shadow.camera.right = 35;
+sol.shadow.camera.top = 35; sol.shadow.camera.bottom = -35;
+sol.shadow.bias = -0.0004;
+scene.add(sol);
+scene.add(new THREE.HemisphereLight(0xcfe4f0, 0x9a8a70, 0.45));
+
+// ---------- Texturas procedurais ----------
+function tex(draw, w=512, h=512, rx=1, ry=1){
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  draw(cv.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry);
+  t.anisotropy = 8; t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function rnd(a, b){ return a + Math.random()*(b-a); }
+
+function desenhaXisto(c, w, h){
+  c.fillStyle = '#4a453e'; c.fillRect(0, 0, w, h);
+  const tons = ['#7a7266','#8a8274','#6b6357','#948a78','#5f594e','#a2947c','#7d7468','#89806e'];
+  let y = 0;
+  while (y < h){
+    const alt = rnd(14, 30);
+    let x = -rnd(0, 30);
+    while (x < w){
+      const larg = rnd(28, 85);
+      c.fillStyle = tons[Math.floor(Math.random()*tons.length)];
+      c.beginPath();
+      c.roundRect(x + 1.5, y + 1.5, larg - 3, alt - 3, 3);
+      c.fill();
+      c.fillStyle = 'rgba(0,0,0,0.18)';
+      c.fillRect(x + 1.5, y + alt - 5, larg - 3, 3);
+      x += larg;
+    }
+    y += alt;
+  }
+}
+const texXisto = tex(desenhaXisto, 1024, 1024, 1.6, 1.1);
+const texXistoMuro = tex(desenhaXisto, 1024, 512, 6, 1);
+
+function desenhaBetao(c, w, h){
+  c.fillStyle = '#c9c6be'; c.fillRect(0, 0, w, h);
+  for (let i = 0; i < 9000; i++){
+    c.fillStyle = `rgba(${100+Math.random()*60|0},${100+Math.random()*55|0},${95+Math.random()*50|0},0.07)`;
+    c.fillRect(Math.random()*w, Math.random()*h, rnd(1,4), rnd(1,4));
+  }
+  for (let i = 0; i < 26; i++){
+    c.fillStyle = `rgba(105,102,95,${rnd(0.03,0.09)})`;
+    c.fillRect(Math.random()*w, Math.random()*h*0.5, rnd(6,22), rnd(60,260));
+  }
+  c.strokeStyle = 'rgba(90,88,82,0.4)'; c.lineWidth = 2;
+  for (let x = 0; x <= w; x += w/4){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+  for (let y = 0; y <= h; y += h/2){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
+  c.fillStyle = 'rgba(85,83,78,0.55)';
+  for (let x = w/8; x < w; x += w/4)
+    for (let y = h/4; y < h; y += h/2){
+      c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill();
+    }
+}
+const texBetao = tex(desenhaBetao, 1024, 512, 2, 1);
+
+function desenhaCalcada(c, w, h){
+  c.fillStyle = '#8f8d88'; c.fillRect(0, 0, w, h);
+  const n = 18, s = w/n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++){
+    const v = 150 + Math.random()*55|0;
+    c.fillStyle = `rgb(${v},${v-3},${v-8})`;
+    c.beginPath();
+    c.roundRect(i*s + rnd(1,3), j*s + rnd(1,3), s - rnd(3,6), s - rnd(3,6), 4);
+    c.fill();
+  }
+}
+const texCalcada = tex(desenhaCalcada, 512, 512, 10, 4);
+const texCalcadaEntrada = tex(desenhaCalcada, 512, 512, 2, 8);
+
+function desenhaRelva(c, w, h){
+  c.fillStyle = '#7f9c66'; c.fillRect(0, 0, w, h);
+  for (let i = 0; i < 14000; i++){
+    const g = 120 + Math.random()*70|0;
+    c.fillStyle = `rgba(${g*0.62|0},${g},${g*0.45|0},0.5)`;
+    c.fillRect(Math.random()*w, Math.random()*h, 2, rnd(2,5));
+  }
+}
+const texRelva = tex(desenhaRelva, 512, 512, 14, 14);
+const texRelvaLote = tex(desenhaRelva, 512, 512, 3, 12);
+
+function desenhaDeck(c, w, h){
+  c.fillStyle = '#8a6a4b'; c.fillRect(0, 0, w, h);
+  const n = 8, s = h/n;
+  for (let j = 0; j < n; j++){
+    const v = rnd(-18, 18);
+    c.fillStyle = `rgb(${138+v|0},${106+v|0},${75+v|0})`;
+    c.fillRect(0, j*s+1, w, s-2);
+    for (let i = 0; i < 60; i++){
+      c.fillStyle = 'rgba(90,66,44,0.25)';
+      c.fillRect(Math.random()*w, j*s + rnd(2, s-3), rnd(8,40), 1);
+    }
+  }
+}
+const texDeck = tex(desenhaDeck, 512, 256, 2, 1);
+
+// tijoleira (terracota) para o terraço
+function desenhaTijoleira(c, w, h){
+  c.fillStyle = '#c9b8a4'; c.fillRect(0, 0, w, h);
+  const n = 10, s = w/n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++){
+    const v = rnd(-14, 14);
+    c.fillStyle = `rgb(${176+v|0},${106+v*0.7|0},${76+v*0.5|0})`;
+    c.fillRect(i*s + 2, j*s + 2, s - 4, s - 4);
+    c.fillStyle = 'rgba(120,70,50,0.25)';
+    c.fillRect(i*s + 2, j*s + s - 6, s - 4, 2);
+  }
+}
+const texTijoleira = tex(desenhaTijoleira, 512, 512, 5, 2);
+
+// reboco pintado com grão fino (realismo)
+function desenhaReboco(c, w, h){
+  c.fillStyle = '#e9e5da'; c.fillRect(0, 0, w, h);
+  for (let i = 0; i < 9000; i++){
+    const v = rnd(-14, 10);
+    c.fillStyle = `rgba(${210+v|0},${205+v|0},${192+v|0},0.35)`;
+    c.fillRect(Math.random()*w, Math.random()*h, rnd(1,3), rnd(1,3));
+  }
+  for (let i = 0; i < 10; i++){
+    c.fillStyle = 'rgba(150,145,132,0.05)';
+    c.fillRect(Math.random()*w, Math.random()*h, rnd(30,120), rnd(20,80));
+  }
+}
+const texReboco = tex(desenhaReboco, 512, 512, 2.5, 2.5);
+
+// soalho carvalho claro (interiores)
+function desenhaSoalho(c, w, h){
+  c.fillStyle = '#c9b291'; c.fillRect(0, 0, w, h);
+  const n = 7, s = h/n;
+  for (let j = 0; j < n; j++){
+    const v = rnd(-12, 12);
+    c.fillStyle = `rgb(${201+v|0},${178+v|0},${145+v|0})`;
+    c.fillRect(0, j*s + 1, w, s - 2);
+    for (let i = 0; i < 45; i++){
+      c.fillStyle = 'rgba(150,125,95,0.18)';
+      c.fillRect(Math.random()*w, j*s + rnd(2, s - 3), rnd(15, 70), 1);
+    }
+    c.fillStyle = 'rgba(120,100,75,0.35)';
+    for (let x = rnd(0, 80); x < w; x += rnd(90, 180)) c.fillRect(x, j*s + 1, 2, s - 2);
+  }
+}
+const texSoalho = tex(desenhaSoalho, 512, 512, 3, 5);
+
+// ---------- Materiais ----------
+const M = {
+  betao:   new THREE.MeshStandardMaterial({ map:texBetao, roughness:0.82 }),
+  betaoLiso: new THREE.MeshStandardMaterial({ color:0xc4c1b9, roughness:0.85 }),
+  xisto:   new THREE.MeshStandardMaterial({ map:texXisto, roughness:0.95 }),
+  xistoMuro: new THREE.MeshStandardMaterial({ map:texXistoMuro, roughness:0.95 }),
+  reboco:  new THREE.MeshStandardMaterial({ map:texReboco, roughness:0.9 }),
+  vidro:   new THREE.MeshPhysicalMaterial({ color:0x2e4652, roughness:0.05, metalness:0.35, transparent:true, opacity:0.8, envMapIntensity:2.2 }),
+  soco:    new THREE.MeshStandardMaterial({ color:0x4a4d4c, roughness:0.9 }),
+  vidroVaranda: new THREE.MeshPhysicalMaterial({ color:0xbcd2da, roughness:0.05, transparent:true, opacity:0.3 }),
+  caixilho: new THREE.MeshStandardMaterial({ color:0x23262a, roughness:0.4, metalness:0.5 }),
+  chapaCinza: new THREE.MeshStandardMaterial({ color:0x9aa0a2, roughness:0.5, metalness:0.6 }),
+  relva:   new THREE.MeshStandardMaterial({ map:texRelva, roughness:1 }),
+  relvaLote: new THREE.MeshStandardMaterial({ map:texRelvaLote, roughness:1 }),
+  calcada: new THREE.MeshStandardMaterial({ map:texCalcada, roughness:0.95 }),
+  calcadaEntrada: new THREE.MeshStandardMaterial({ map:texCalcadaEntrada, roughness:0.95 }),
+  deck:    new THREE.MeshStandardMaterial({ map:texDeck, roughness:0.7 }),
+  tijoleira: new THREE.MeshStandardMaterial({ map:texTijoleira, roughness:0.9 }),
+  laje:    new THREE.MeshStandardMaterial({ color:0xd6d2c8, roughness:0.9 }),
+  parede:  new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 }),
+  pavim:   new THREE.MeshStandardMaterial({ map:texSoalho, roughness:0.8 }),
+  telha:   new THREE.MeshStandardMaterial({ color:0xa96a4e, roughness:0.9 }),
+  vizinho: new THREE.MeshStandardMaterial({ color:0xdfd9cc, roughness:0.9 }),
+  vizinhoCinza: new THREE.MeshStandardMaterial({ color:0xa8a8a2, roughness:0.9 }),
+  folhaOliveira: new THREE.MeshStandardMaterial({ color:0x7d8a66, roughness:0.95 }),
+  folha:   new THREE.MeshStandardMaterial({ color:0x5c7d4e, roughness:0.95 }),
+  tronco:  new THREE.MeshStandardMaterial({ color:0x6a5a48, roughness:0.95 }),
+  muroCimento: new THREE.MeshStandardMaterial({ color:0xb5b2a8, roughness:0.95 }),
+  baseCinza: new THREE.MeshStandardMaterial({ color:0xaeaba2, roughness:0.9 }),
+  vermelho: new THREE.MeshBasicMaterial({ color:0xe8452a }),
+  asfaltoPasseio: new THREE.MeshStandardMaterial({ color:0xb9b5ac, roughness:1 })
+};
+
+function box(w, h, d, mat, x, y, z, parent){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  m.castShadow = true; m.receiveShadow = true;
+  (parent || scene).add(m);
+  return m;
+}
+
+// ============================================================
+// TERRENO — lote ESTREITO ~9,5 × 45 m, rua a +Z (frente)
+// X: -4.75 .. 4.75   |   Z: -35 .. 10 (estrema da rua em z=10)
+// ============================================================
+const LOTE = { x1:-4.75, x2:4.75, z1:-20, z2:10 };
+const HX = -1.35, HZ = -1.15; // casa encostada à estrema esquerda, recuada ~6 m da rua
+// passagem lateral: x 2.05..4.75 (~2,7 m)
+
+const chao = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), M.relva);
+chao.rotation.x = -Math.PI/2; chao.position.y = -0.02; chao.receiveShadow = true;
+scene.add(chao);
+
+const relvaLote = new THREE.Mesh(new THREE.PlaneGeometry(LOTE.x2-LOTE.x1, LOTE.z2-LOTE.z1), M.relvaLote);
+relvaLote.rotation.x = -Math.PI/2;
+relvaLote.position.set((LOTE.x1+LOTE.x2)/2, 0.0, (LOTE.z1+LOTE.z2)/2);
+relvaLote.receiveShadow = true;
+scene.add(relvaLote);
+
+const rua = new THREE.Mesh(new THREE.PlaneGeometry(140, 7), M.calcada);
+rua.rotation.x = -Math.PI/2; rua.position.set(0, 0.01, 10 + 4.2); rua.receiveShadow = true;
+scene.add(rua);
+box(140, 0.12, 1.4, M.asfaltoPasseio, 0, 0.06, 10 + 0.7);
+
+// contorno VERMELHO do lote
+function linhaLote(w, d, x, z){ const m = box(w, 0.07, d, M.vermelho, x, 0.10, z); m.castShadow = false; }
+linhaLote(LOTE.x2-LOTE.x1 + 0.2, 0.18, (LOTE.x1+LOTE.x2)/2, LOTE.z1);
+linhaLote(LOTE.x2-LOTE.x1 + 0.2, 0.18, (LOTE.x1+LOTE.x2)/2, LOTE.z2);
+linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x1, (LOTE.z1+LOTE.z2)/2);
+linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x2, (LOTE.z1+LOTE.z2)/2);
+
+// muro em betão/reboco na frente com portões (pedonal + automóvel p/ passagem)
+const gMuro = new THREE.Group(); scene.add(gMuro);
+box(4.1, 1.25, 0.35, M.muroCimento, -2.7, 0.62, 10, gMuro);      // troço esquerdo
+box(1.6, 1.25, 0.35, M.muroCimento, 1.25, 0.62, 10, gMuro);      // entre portões
+box(2.7, 1.5, 0.1, M.chapaCinza, 3.4, 0.78, 10, gMuro);          // portão automóvel (passagem)
+box(1.1, 1.5, 0.08, M.chapaCinza, -0.1, 0.78, 10, gMuro);        // portão pedonal
+box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x1 + 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
+box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x2 - 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
+// capeamento escuro nos muros + ripado horizontal nos portões + sebes
+box(4.15, 0.06, 0.42, M.caixilho, -2.7, 1.28, 10, gMuro);
+box(1.65, 0.06, 0.42, M.caixilho, 1.25, 1.28, 10, gMuro);
+for (let i = 0; i < 3; i++){
+  box(2.68, 0.03, 0.12, M.caixilho, 3.4, 0.35 + i*0.4, 10, gMuro);
+  box(1.08, 0.03, 0.1, M.caixilho, -0.1, 0.35 + i*0.4, 10, gMuro);
+}
+box(3.6, 0.6, 0.4, M.folha, -2.7, 0.42, 9.35, gMuro);
+box(1.3, 0.5, 0.35, M.folha, 1.25, 0.37, 9.4, gMuro);
+
+// PASSAGEM lateral em calçada (da rua até ao fundo utilizável) + caminho pedonal
+box(2.6, 0.06, 18, M.calcadaEntrada, 3.4, 0.05, 1.0);            // z -8..10
+box(1.3, 0.06, 4.2, M.calcadaEntrada, -0.1, 0.05, 7.9);          // do portão pedonal
+box(2.2, 0.06, 1.3, M.calcadaEntrada, 0.35, 0.05, 5.2);          // ligação à porta
+
+// ============================================================
+// CASA — 6,8 (frente) × 11,5 (fundo), betão à vista + base de xisto
+// Grupos deslocados (HX, 0, HZ); coords locais centradas na casa
+// ============================================================
+const LX = 6.8, LZ = 10.3, H0 = 2.9, LAJE = 0.3, H1 = 2.9;
+const y1 = H0 + LAJE, topo = y1 + H1;
+const gExterior = new THREE.Group(); scene.add(gExterior);
+const gShell0 = new THREE.Group(); scene.add(gShell0);
+gExterior.position.set(HX, 0, HZ); gShell0.position.set(HX, 0, HZ);
+
+// ---- Piso 0: base em reboco cinza (sem pedra) ----
+box(LX, H0, LZ, M.reboco, 0, H0/2, 0, gShell0);
+box(LX + 0.12, H0, 0.09, M.baseCinza, 0, H0/2, LZ/2 + 0.04, gShell0);   // frente
+box(0.09, H0, LZ + 0.12, M.baseCinza, LX/2 + 0.04, H0/2, 0, gShell0);   // lateral da passagem
+box(LX + 0.12, H0, 0.09, M.baseCinza, 0, H0/2, -LZ/2 - 0.04, gShell0);  // tardoz (base)
+// (empena esquerda cega — encostada à estrema)
+
+function vao(w, h, x, y, z, rotY, parent, matV){
+  const g = new THREE.Group();
+  const cx = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.12), M.caixilho); g.add(cx);
+  const vd = new THREE.Mesh(new THREE.BoxGeometry(w - 0.12, h - 0.12, 0.05), matV || M.vidro);
+  vd.position.z = 0.045; g.add(vd);
+  const nDiv = Math.max(1, Math.round(w / 1.1));
+  for (let i = 1; i < nDiv; i++){
+    const p = new THREE.Mesh(new THREE.BoxGeometry(0.06, h - 0.1, 0.14), M.caixilho);
+    p.position.x = -w/2 + (w/nDiv)*i; g.add(p);
+  }
+  if (h <= 1.8){   // peitoril exterior nas janelas (não nas portas envidraçadas)
+    const p = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, 0.06, 0.24), M.laje);
+    p.position.set(0, -h/2 - 0.03, 0.04); p.castShadow = true; g.add(p);
+  }
+  g.position.set(x, y, z); g.rotation.y = rotY || 0;
+  (parent || gExterior).add(g);
+  return g;
+}
+// frente piso 0: porta (hall à direita) + janela estreita
+box(1.3, 2.35, 0.14, M.caixilho, 2.0, 1.28, LZ/2 + 0.11, gShell0);   // porta escura
+box(1.9, 0.18, 1.2, M.laje, 2.0, 0.09, LZ/2 + 0.7, gShell0);         // soleira
+// soco escuro na base + puxador da porta (detalhe)
+box(LX + 0.16, 0.22, 0.08, M.soco, 0, 0.11, LZ/2 + 0.1, gShell0);
+box(0.08, 0.22, LZ + 0.16, M.soco, LX/2 + 0.1, 0.11, 0, gShell0);
+box(LX + 0.16, 0.22, 0.08, M.soco, 0, 0.11, -LZ/2 - 0.1, gShell0);
+box(0.035, 0.5, 0.05, M.chapaCinza, 2.5, 1.3, LZ/2 + 0.2, gShell0);
+vao(1.6, 1.2, -1.9, 1.75, LZ/2 + 0.12, 0, gShell0);         // COZINHA: janela normal sobre os balcões (peitoril ~1,15)
+// TARDOZ piso 0: envidraçado de correr da sala (reduzido), acesso ao terraço
+vao(4.4, 2.4, 0, 1.45, -LZ/2 - 0.12, 0, gShell0);
+// lateral da passagem (nascente): SEM janelas no piso 0
+
+// ---- Piso 1: caixa de betão à vista, balanço para a frente ----
+const L1X = LX + 0.5, L1Z = LZ + 0.8;   // 7.3 × 12.3
+const c1z = 0.4;
+box(L1X, 0.68, L1Z, M.laje, 0, H0 + 0.32, c1z, gExterior);   // laje intermédia contínua (fecha a junta entre pisos)
+const hP = H1;                                                // paredes do piso 1 até à laje de cobertura (sem frincha)
+box(0.3, hP, L1Z, M.reboco, -L1X/2 + 0.15, y1 + hP/2, c1z, gExterior);      // empena esq cega
+box(0.3, hP, L1Z, M.reboco, L1X/2 - 0.15, y1 + hP/2, c1z, gExterior);       // lateral passagem
+// FRENTE (rua): fechada, só janelas dos quartos
+const frenteZ = c1z + L1Z/2 - 0.15;
+box(L1X, hP, 0.3, M.reboco, 0, y1 + hP/2, frenteZ, gExterior);
+vao(1.4, 1.2, -1.7, y1 + 1.6, frenteZ + 0.16, 0, gExterior);               // quarto 2: 1 janela normal
+vao(1.4, 1.2, 1.7, y1 + 1.6, frenteZ + 0.16, 0, gExterior);                // quarto 3: 1 janela normal
+// TARDOZ (jardim): troço fechado à direita + LOGGIA da suite aberta ao terreno
+const trasZ = c1z - L1Z/2 + 0.15;
+box(2.35, hP, 0.3, M.reboco, L1X/2 - 1.175, y1 + hP/2, trasZ, gExterior);
+vao(1.0, 1.0, L1X/2 - 1.175, y1 + 1.7, trasZ - 0.16, 0, gExterior);        // WC suite
+const loggiaW = L1X - 2.35 - 0.3;
+const loggiaX = -L1X/2 + 0.3 + loggiaW/2 - 0.15;
+box(loggiaW, 0.06, 1.4, M.deck, loggiaX, y1 + 0.19, trasZ + 0.7, gExterior);
+// parede recuada da suite c/ 2 PORTAS-JANELA grandes de saída para a varanda
+box(loggiaW - 0.05, hP - 0.25, 0.2, M.reboco, loggiaX, y1 + hP/2, trasZ + 1.4, gExterior);
+vao(1.6, 2.2, loggiaX - 0.8, y1 + 1.35, trasZ + 1.28, 0, gExterior);
+vao(1.6, 2.2, loggiaX + 0.8, y1 + 1.35, trasZ + 1.28, 0, gExterior);
+const guarda = box(loggiaW - 0.2, 1.0, 0.04, M.vidroVaranda, loggiaX, y1 + 0.7, trasZ - 0.05, gExterior);
+guarda.castShadow = false;
+box(loggiaW - 0.2, 0.05, 0.05, M.caixilho, loggiaX, y1 + 1.22, trasZ - 0.05, gExterior);
+// cobertura + rufo metálico escuro no perímetro (capeamento)
+box(L1X + 0.5, 0.32, L1Z + 0.5, M.betaoLiso, 0, topo + 0.16, c1z, gExterior);
+box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z + (L1Z + 0.5)/2 - 0.05, gExterior);
+box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z - (L1Z + 0.5)/2 + 0.05, gExterior);
+box(0.12, 0.05, L1Z + 0.54, M.caixilho, (L1X + 0.5)/2 - 0.05, topo + 0.345, c1z, gExterior);
+box(0.12, 0.05, L1Z + 0.54, M.caixilho, -(L1X + 0.5)/2 + 0.05, topo + 0.345, c1z, gExterior);
+// lateral passagem piso 1: SÓ a janela da escada (luz do vão)
+vao(1.2, 1.4, L1X/2 + 0.12, y1 + 1.6, 0.1, Math.PI/2, gExterior);
+
+// ---- Coberto FASE 1: só a zona dos carros (junto ao portão) ----
+// (extensão da pala até ao fundo + cobertura do terraço ficam para 2ª fase)
+const carport = new THREE.Group(); gExterior.add(carport);
+const cpX = 3.4 - HX, cpW = 2.55, cpH = 2.3;
+const cpZ1 = 4.0 - HZ, cpZ2 = -3.0 - HZ;          // coords locais (mundo: z 4.0 → -3.0) — começa na LINHA DA CASA, ~7 m = 2 carros
+const cpD = cpZ1 - cpZ2, cpZ = (cpZ1 + cpZ2)/2;
+box(cpW + 0.15, 0.14, cpD, M.chapaCinza, cpX, cpH + 0.07, cpZ, carport);
+for (let z = cpZ2 + 0.3; z <= cpZ1 - 0.2; z += (cpD - 0.6)/2){
+  box(0.13, cpH, 0.13, M.caixilho, cpX - (cpW/2 - 0.15), cpH/2, z, carport);
+  box(0.13, cpH, 0.13, M.caixilho, cpX + (cpW/2 - 0.15), cpH/2, z, carport);
+}
+// TERRAÇO traseiro em CALÇADA (igual à entrada dos carros): a toda a largura,
+// à frente do envidraçado da sala. Descoberto — cobertura fica p/ 2ª fase.
+box(9.45, 0.1, 3.5, M.calcadaEntrada, 1.325, 0.09, -LZ/2 - 1.75, gExterior);
+
+// ============================================================
+// ENVOLVENTE — vizinhos (lotes igualmente estreitos), oliveiras
+// ============================================================
+const gViz = new THREE.Group(); scene.add(gViz);
+function casaVizinha(x, z, w, d, rot, alt=3.2, mat){
+  const g = new THREE.Group();
+  box(w, alt, d, mat || M.vizinho, 0, alt/2, 0, g);
+  const a = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.12, d*0.7), M.telha);
+  a.position.set(0, alt + 0.65, -d*0.25); a.rotation.x = 0.38; a.castShadow = true; g.add(a);
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.12, d*0.7), M.telha);
+  b.position.set(0, alt + 0.65, d*0.25); b.rotation.x = -0.38; b.castShadow = true; g.add(b);
+  box(w, 1.4, d*0.8, mat || M.vizinho, 0, alt + 0.4, 0, g);
+  g.position.set(x, 0, z); g.rotation.y = rot || 0;
+  gViz.add(g);
+}
+casaVizinha(-8.9, 1.5, 7.5, 8, 0.02, 5.6);                 // nº 123 (2 pisos, encostado à estrema)
+casaVizinha(-8.6, -13, 6, 5, 0.06, 2.6);                   // anexo do vizinho
+casaVizinha(8.7, -0.5, 7.5, 9, 0, 6.4, M.vizinhoCinza);    // casa cinzenta alta (outro lado da passagem)
+casaVizinha(11.5, -15, 7, 7, -0.2, 3.2);
+
+function oliveira(x, z, s=1){
+  const g = new THREE.Group();
+  const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.16*s, 0.26*s, 1.7*s, 7), M.tronco);
+  tr.position.y = 0.85*s; tr.castShadow = true; g.add(tr);
+  for (let i = 0; i < 8; i++){
+    const r = rnd(0.5, 0.95)*s;
+    const cp = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), M.folhaOliveira);
+    cp.position.set(rnd(-0.9, 0.9)*s, rnd(1.6, 2.8)*s, rnd(-0.9, 0.9)*s);
+    cp.scale.set(rnd(0.85, 1.15), rnd(0.65, 0.85), rnd(0.85, 1.15));
+    cp.castShadow = true; g.add(cp);
+  }
+  g.position.set(x, 0, z); scene.add(g);
+}
+oliveira(-3.4, 6.8, 0.85);
+oliveira(-2.6, -13, 1.1);
+oliveira(2.4, -17.5, 1.0);
+oliveira(-2.9, -18, 1.15);
+oliveira(8.5, 6.5, 1.1);    // fora do lote, junto à rua
+oliveira(-9.5, 8, 0.9);
+function arbusto(x, z, s=1){
+  for (let i = 0; i < 3; i++){
+    const a = new THREE.Mesh(new THREE.SphereGeometry(rnd(0.28, 0.42)*s, 14, 11), M.folha);
+    a.position.set(x + rnd(-0.25, 0.25)*s, rnd(0.2, 0.4)*s, z + rnd(-0.25, 0.25)*s);
+    a.scale.y = 0.75; a.castShadow = true; scene.add(a);
+  }
+}
+arbusto(-2.6, 4.6, 1.1); arbusto(-3.9, 5.4, 0.9); arbusto(-4.0, -6, 1.0);
+arbusto(3.8, -12, 0.9); arbusto(-3.5, -18.5, 1.0);
+
+// ============================================================
+// ETIQUETAS + PLANTAS (vistas Piso 0 / Piso 1)
+// ============================================================
+function etiqueta(texto, sub, x, y, z, escala=1){
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 200;
+  const c = cv.getContext('2d');
+  c.fillStyle = 'rgba(255,255,255,0.94)';
+  c.beginPath(); c.roundRect(6, 6, 500, 188, 28); c.fill();
+  c.strokeStyle = '#2f6b4a'; c.lineWidth = 5; c.stroke();
+  c.fillStyle = '#1e2a24'; c.font = 'bold 62px -apple-system, Segoe UI, sans-serif';
+  c.textAlign = 'center'; c.fillText(texto, 256, sub ? 92 : 120);
+  if (sub){ c.fillStyle = '#5a8a6e'; c.font = '48px -apple-system, Segoe UI, sans-serif'; c.fillText(sub, 256, 158); }
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest:false }));
+  sp.scale.set(2.6*escala, 1.0*escala, 1);
+  sp.position.set(x, y, z);
+  return sp;
+}
+
+const gMaq0 = new THREE.Group(); scene.add(gMaq0);
+const gMaq1 = new THREE.Group(); scene.add(gMaq1);
+gMaq0.position.set(HX, 0, HZ); gMaq1.position.set(HX, 0, HZ);
+const hM = 1.15, twp = 0.15;
+function planta(grupo, yBase, divisorias, etiquetas){
+  box(LX, 0.12, LZ, M.pavim, 0, yBase + 0.06, 0, grupo);
+  box(LX, hM, 0.22, M.parede, 0, yBase + hM/2, LZ/2 - 0.11, grupo);
+  box(LX, hM, 0.22, M.parede, 0, yBase + hM/2, -LZ/2 + 0.11, grupo);
+  box(0.22, hM, LZ, M.parede, LX/2 - 0.11, yBase + hM/2, 0, grupo);
+  box(0.22, hM, LZ, M.parede, -LX/2 + 0.11, yBase + hM/2, 0, grupo);
+  divisorias.forEach(([x1, z1, x2, z2]) => {
+    const w = Math.abs(x2 - x1), d = Math.abs(z2 - z1);
+    if (w >= d) box(w, hM, twp, M.parede, (x1+x2)/2, yBase + hM/2, z1, grupo);
+    else box(twp, hM, d, M.parede, x1, yBase + hM/2, (z1+z2)/2, grupo);
+  });
+  etiquetas.forEach(([t, s, x, z, esc]) => grupo.add(etiqueta(t, s, x, yBase + hM + 0.75, z, esc || 1)));
+}
+// Piso 0 — hall/escada/WC/lavandaria em coluna à direita (frente),
+// sala+jantar+cozinha em L aberto para o fundo (jardim)
+planta(gMaq0, 0, [
+  [-0.4, 1.85, -0.4, 5.15],   // corredor | cozinha (hall e corredor abertos entre si)
+  [0.6, 3.55, 3.4, 3.55],     // hall / WC serviço
+  [0.6, 2.45, 3.4, 2.45],     // WC serviço | lavandaria (um atrás do outro)
+  [0.6, 1.35, 3.4, 1.35],     // lavandaria / escada aberta
+  [0.6, 1.35, 0.6, 1.6],      // ombreiras — portas individuais p/ o corredor
+  [0.6, 2.2, 0.6, 2.7],
+  [0.6, 3.3, 0.6, 3.55]
+], [
+  ['Cozinha', '~10 m²', -1.9, 3.3, 0.9],
+  ['Sala + jantar', '~26 m²', -0.9, -2.6, 1.1],
+  ['Hall', '~4,5 m²', 2.0, 4.35, 0.68],
+  ['Corredor', '', 0.1, 2.6, 0.62],
+  ['WC serviço', '~3 m²', 2.1, 3.0, 0.58],
+  ['Lavandaria', '~3 m²', 2.1, 1.9, 0.58],
+  ['Escada', 'aberta, sobre WC/lav.', 2.0, 0.5, 0.72]
+]);
+// (ilha da cozinha desenhada no bloco de mobiliário)
+// Piso 1 — suite ao fundo, quartos à frente/meio, WCs e corredor à direita
+planta(gMaq1, y1, [
+  [-3.4, 1.85, -1.0, 1.85],   // frente dos quartos c/ PORTAS p/ o corredor
+  [-0.3, 1.85, 1.0, 1.85],
+  [1.7, 1.85, 3.4, 1.85],
+  [0, 1.85, 0, 5.15],         // quarto 2 | quarto 3 (lado a lado, rua)
+  [-3.4, 1.15, -2.9, 1.15],   // WC família c/ porta p/ o corredor
+  [-2.2, 1.15, -1.2, 1.15],
+  [-1.2, -0.9, -1.2, 1.15],   // WC família | corredor
+  [-3.4, -0.9, -0.7, -0.9],   // suite c/ porta a partir do corredor
+  [0.6, -0.9, 3.4, -0.9],
+  [1.2, -5.15, 1.2, -3.35],   // WC suite
+  [1.2, -3.35, 3.4, -3.35]
+], [
+  ['Quarto 2', '~11 m²', -1.7, 3.7, 0.95],
+  ['Quarto 3', '~11 m²', 1.7, 3.7, 0.95],
+  ['Corredor', '', -0.1, 0.4, 0.62],
+  ['Suite', '~14 m²', -1.0, -3.0, 1.0],
+  ['WC suite', '~4 m²', 2.3, -4.2, 0.7],
+  ['WC família', '~4,5 m²', -2.3, 0.1, 0.7],
+  ['Escada', 'vão aberto', 2.3, 0.1, 0.62]
+]);
+// vão de escada ABERTO — sem paredes, só guarda-corpo (ganha-se luz e espaço)
+box(0.06, 0.35, 1.5, M.caixilho, 1.2, y1 + 0.3, -0.15, gMaq1);   // guarda lateral (abertura p/ chegada)
+box(2.26, 0.35, 0.06, M.caixilho, 2.3, y1 + 0.3, 1.15, gMaq1);   // guarda de topo
+// guarda-fatos embutidos (blocos dentro de cada quarto, sem divisão dedicada)
+box(2.2, 0.8, 0.6, M.laje, -2.0, y1 + 0.52, 2.28, gMaq1);   // quarto 2
+box(2.2, 0.8, 0.6, M.laje, 2.0, y1 + 0.52, 2.28, gMaq1);    // quarto 3
+box(2.4, 0.8, 0.6, M.laje, -1.5, y1 + 0.52, -1.35, gMaq1);  // suite
+
+// ============================================================
+// MOBILIÁRIO (ilustrativo) — plantas mobiladas + exterior
+// ============================================================
+const F = {
+  madeira: new THREE.MeshStandardMaterial({ color:0x9a7b5a, roughness:0.7 }),
+  madeiraEscura: new THREE.MeshStandardMaterial({ color:0x6b543f, roughness:0.7 }),
+  tecido: new THREE.MeshStandardMaterial({ color:0x7f8d99, roughness:0.95 }),
+  colchao: new THREE.MeshStandardMaterial({ color:0xeceae2, roughness:0.9 }),
+  branco: new THREE.MeshStandardMaterial({ color:0xf4f2ee, roughness:0.5 }),
+  antracite: new THREE.MeshStandardMaterial({ color:0x3a3f42, roughness:0.6 }),
+  tapete: new THREE.MeshStandardMaterial({ color:0xcdc5b4, roughness:1 }),
+  carro: new THREE.MeshStandardMaterial({ color:0x37505f, roughness:0.4, metalness:0.6 }),
+  vidroCarro: new THREE.MeshStandardMaterial({ color:0x1c2830, roughness:0.2, metalness:0.5 })
+};
+function grupoEm(parent, x, y, z, rot){
+  const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = rot || 0; parent.add(g); return g;
+}
+function bx(g, w, h, d, m, x, y, z){ return box(w, h, d, m, x, y, z, g); }
+function sofa(parent, x, z, rot, w=2.3){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, w, 0.42, 0.95, F.tecido, 0, 0.21, 0);
+  bx(g, w, 0.45, 0.22, F.tecido, 0, 0.62, -0.38);
+  bx(g, 0.24, 0.55, 0.95, F.tecido, -w/2 + 0.12, 0.4, 0);
+  bx(g, 0.24, 0.55, 0.95, F.tecido, w/2 - 0.12, 0.4, 0);
+}
+function mesa(parent, x, z, rot, w=1.8, d=0.9, h=0.74){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, w, 0.05, d, F.madeira, 0, h, 0);
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz]) => bx(g, 0.06, h, 0.06, F.madeiraEscura, sx*(w/2-0.08), h/2, sz*(d/2-0.08)));
+}
+function cadeira(parent, x, z, rot){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, 0.42, 0.05, 0.42, F.madeiraEscura, 0, 0.45, 0);
+  bx(g, 0.42, 0.48, 0.05, F.madeiraEscura, 0, 0.72, -0.19);
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz]) => bx(g, 0.04, 0.45, 0.04, F.madeiraEscura, sx*0.18, 0.22, sz*0.18));
+}
+function cama(parent, x, z, rot, w=1.6, c=2.0){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, w, 0.28, c, F.madeira, 0, 0.14, 0);
+  bx(g, w - 0.08, 0.18, c - 0.08, F.colchao, 0, 0.37, 0);
+  bx(g, w, 0.6, 0.08, F.madeiraEscura, 0, 0.42, -c/2 + 0.04);
+  bx(g, w*0.4, 0.1, 0.34, F.branco, -w*0.22, 0.5, -c/2 + 0.32);
+  if (w > 1.2) bx(g, w*0.4, 0.1, 0.34, F.branco, w*0.22, 0.5, -c/2 + 0.32);
+}
+function mesinha(parent, x, z){ box(0.4, 0.45, 0.4, F.madeira, x, 0.34, z, parent); }
+function sanita(parent, x, z, rot){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, 0.38, 0.4, 0.55, F.branco, 0, 0.2, 0);
+  bx(g, 0.4, 0.2, 0.14, F.branco, 0, 0.5, -0.2);
+}
+function lavatorio(parent, x, z, rot){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, 0.55, 0.82, 0.42, F.branco, 0, 0.41, 0);
+  bx(g, 0.5, 0.06, 0.38, F.antracite, 0, 0.85, 0);
+}
+function duche(parent, x, z){
+  box(0.85, 0.08, 0.85, F.branco, x, 0.16, z, parent);
+  const p = box(0.85, 1.0, 0.03, M.vidroVaranda, x, 0.7, z + 0.42, parent); p.castShadow = false;
+}
+function bancada(parent, x, z, rot, w){
+  const g = grupoEm(parent, x, 0.12, z, rot);
+  bx(g, w, 0.86, 0.62, F.branco, 0, 0.43, 0);
+  bx(g, w + 0.04, 0.05, 0.66, F.antracite, 0, 0.88, 0);
+}
+function armarioAlto(parent, x, z, w=0.7){ box(w, 2.0, 0.65, F.branco, x, 1.12, z, parent); }
+function maquina(parent, x, z){ box(0.6, 0.84, 0.6, F.branco, x, 0.54, z, parent); box(0.4, 0.4, 0.03, F.antracite, x, 0.6, z + 0.3, parent); }
+function carro(parent, x, z, rot){
+  const g = grupoEm(parent, x, 0, z, rot);
+  bx(g, 1.72, 0.5, 4.1, F.carro, 0, 0.55, 0);
+  bx(g, 1.58, 0.42, 2.1, F.vidroCarro, 0, 1.0, -0.2);
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz]) => {
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.22, 14), F.antracite);
+    r.rotation.z = Math.PI/2; r.position.set(sx*0.78, 0.32, sz*1.32); r.castShadow = true; g.add(r);
+  });
+}
+
+// ---- Piso 0 ----
+bancada(gMaq0, -1.95, 4.72, 0, 2.6);                 // cozinha: bancada na parede da rua
+bancada(gMaq0, -3.02, 3.15, Math.PI/2, 2.5);         // bancada na empena
+armarioAlto(gMaq0, -0.85, 4.7);                      // frigorífico/coluna
+bancada(gMaq0, -1.9, 1.85, 0, 2.0);                  // ilha
+mesa(gMaq0, -1.3, -0.5, 0, 1.8, 0.95);               // jantar
+cadeira(gMaq0, -1.9, 0.15, Math.PI); cadeira(gMaq0, -0.7, 0.15, Math.PI);
+cadeira(gMaq0, -1.9, -1.15, 0); cadeira(gMaq0, -0.7, -1.15, 0);
+box(2.6, 0.02, 1.9, F.tapete, -1.3, 0.14, -3.5, gMaq0);
+sofa(gMaq0, -0.5, -3.5, -Math.PI/2);                 // sala virada à TV (empena)
+box(0.45, 0.5, 1.8, F.madeiraEscura, -3.05, 0.37, -3.5, gMaq0);
+box(0.06, 0.8, 1.5, F.antracite, -3.24, 1.15, -3.5, gMaq0);   // TV (à face da parede)
+sanita(gMaq0, 2.95, 3.0, Math.PI/2); lavatorio(gMaq0, 1.2, 3.05, -Math.PI/2);   // WC serviço
+maquina(gMaq0, 2.95, 1.9); lavatorio(gMaq0, 1.2, 1.9, -Math.PI/2);              // lavandaria
+for (let i = 0; i < 7; i++){                          // degraus da escada
+  box(1.0, 0.13*(i+1), 0.26, M.laje, 2.9, 0.065*(i+1) + 0.12, -0.15 + i*0.24, gMaq0);
+}
+
+// ---- Piso 1 (mobília à cota y1) ----
+const gMob1 = new THREE.Group(); gMob1.position.y = y1; gMaq1.add(gMob1);
+cama(gMob1, -2.3, -3.0, Math.PI/2, 1.6, 2.0);        // suite (cabeceira na empena)
+mesinha(gMob1, -3.1, -4.05); mesinha(gMob1, -3.1, -1.95);
+cama(gMob1, -2.35, 3.7, Math.PI/2, 1.4, 1.95);       // quarto 2
+mesinha(gMob1, -3.15, 4.75);
+mesa(gMob1, -0.35, 4.35, Math.PI/2, 1.1, 0.5);       // secretária q2 (contra a divisória)
+cama(gMob1, 2.35, 3.7, -Math.PI/2, 1.4, 1.95);       // quarto 3
+mesinha(gMob1, 3.15, 4.75);
+mesa(gMob1, 0.35, 4.35, Math.PI/2, 1.1, 0.5);        // secretária q3 (contra a divisória)
+sanita(gMob1, -2.9, 0.75, 0); lavatorio(gMob1, -1.6, 0.85, 0); duche(gMob1, -2.9, -0.45);   // WC família
+sanita(gMob1, 2.0, -3.75, 0); lavatorio(gMob1, 2.9, -3.75, 0); duche(gMob1, 1.75, -4.65);   // WC suite
+
+// ---- Exterior ----
+carro(gExterior, 3.4 - HX, 0.5 - HZ, 0);             // carro debaixo do coberto
+mesa(gExterior, 0.4, -LZ/2 - 1.7, 0, 1.5, 0.85);     // mesa no terraço
+cadeira(gExterior, -0.3, -LZ/2 - 1.0, Math.PI); cadeira(gExterior, 1.1, -LZ/2 - 1.0, Math.PI);
+cadeira(gExterior, -0.3, -LZ/2 - 2.4, 0); cadeira(gExterior, 1.1, -LZ/2 - 2.4, 0);
+
+// ============================================================
+// VISTAS
+// ============================================================
+const btns = { ext: btnExt, p0: btnP0, p1: btnP1 };
+function vista(modo){
+  gExterior.visible = (modo === 'ext');
+  gViz.visible     = (modo === 'ext');
+  gShell0.visible  = (modo === 'ext' || modo === 'p1');
+  gMaq0.visible    = (modo === 'p0');
+  gMaq1.visible    = (modo === 'p1');
+  Object.values(btns).forEach(b => b.classList.remove('ativo'));
+  btns[modo].classList.add('ativo');
+  if (modo === 'ext'){ camera.position.set(9.5, 4.8, 22); controls.target.set(-1.2, 2.8, -1); }
+  if (modo === 'p0'){ camera.position.set(0.2, 17, 5); controls.target.set(-1.3, 0.4, -1.75); }
+  if (modo === 'p1'){ camera.position.set(0.2, 19.5, 4.5); controls.target.set(-1.3, y1 + 0.4, -1.75); }
+}
+btnExt.onclick = () => vista('ext');
+btnP0.onclick = () => vista('p0');
+btnP1.onclick = () => vista('p1');
+
+resize();
+vista('ext');
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+window.__vista = vista;
+window.__cam = (x, y, z, tx, ty, tz) => { camera.position.set(x, y, z); controls.target.set(tx, ty, tz); };
+window.__shot = (modo, x, y, z, tx, ty, tz) => {
+  if (modo) vista(modo);
+  if (x !== undefined) window.__cam(x, y, z, tx, ty, tz);
+  controls.update();
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+};
+window.__ready = true;
+</script>
+</body>
+</html>
