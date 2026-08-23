@@ -58,15 +58,15 @@
 
     <div class="bloco">
       <h2>Resumo</h2>
-      <div class="linha"><span>Lote (365 m² confirmados)</span><b>~9,5 × 38,5 m</b></div>
+      <div class="linha"><span>Lote (365 m² confirmados)</span><b>~7,7 × 47 m</b></div>
       <div class="linha"><span>Tipologia</span><b>T3, 2 pisos</b></div>
-      <div class="linha"><span>Implantação</span><b>6,8 × 10,3 m</b></div>
+      <div class="linha"><span>Implantação</span><b>6,6 × 10,6 m</b></div>
       <div class="linha"><span>Área bruta</span><b>~140 m² (70 / piso)</b></div>
       <div class="linha"><span>Acabamento</span><b>Reboco pintado (económico)</b></div>
       <div class="linha"><span>Vãos</span><b>Grandes, caixilharia standard, c/ acesso ext.</b></div>
       <div class="linha"><span>Implantação no lote</span><b>Encostada à estrema poente</b></div>
-      <div class="linha"><span>Passagem lateral p/ trás</span><b>~2,7 m (nascente)</b></div>
-      <div class="linha"><span>Coberto (fase 1)</span><b>Só carros, ~7 m</b></div>
+      <div class="linha"><span>Passagem lateral p/ trás</span><b>~1,1 m PEDONAL (nascente)</b></div>
+      <div class="linha"><span>Carport (fase 1)</span><b>2 carros em linha, à FRENTE</b></div>
       <div class="linha"><span>Terraço traseiro (calçada, descoberto)</span><b>~33 m²</b></div>
     </div>
 
@@ -349,9 +349,9 @@ function box(w, h, d, mat, x, y, z, parent){
 // TERRENO — lote ESTREITO ~9,5 × 45 m, rua a +Z (frente)
 // X: -4.75 .. 4.75   |   Z: -35 .. 10 (estrema da rua em z=10)
 // ============================================================
-const LOTE = { x1:-4.75, x2:4.75, z1:-28.5, z2:10 };  // 365 m² confirmados (9,5 × 38,5)
-const HX = -1.35, HZ = -1.15; // casa encostada à estrema esquerda, recuada ~6 m da rua
-// passagem lateral: x 2.05..4.75 (~2,7 m)
+const LOTE = { x1:-3.85, x2:3.85, z1:-37.4, z2:10 };  // 365 m² confirmados (7,7 × 47,4 — frente = 2× C3)
+const HX = -0.55, HZ = -3.95; // casa 6,6 encostada à estrema esquerda, recuo ~8,8 m (2 carros em linha à frente)
+// passagem lateral PEDONAL: x 2.75..3.85 (~1,1 m)
 
 const chao = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), M.relva);
 chao.rotation.x = -Math.PI/2; chao.position.y = -0.02; chao.receiveShadow = true;
@@ -375,34 +375,36 @@ linhaLote(LOTE.x2-LOTE.x1 + 0.2, 0.18, (LOTE.x1+LOTE.x2)/2, LOTE.z2);
 linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x1, (LOTE.z1+LOTE.z2)/2);
 linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x2, (LOTE.z1+LOTE.z2)/2);
 
-// muro em betão/reboco na frente com portões (pedonal + automóvel p/ passagem)
+// muro em betão/reboco na frente: portão automóvel central + pedonal junto à passagem
 const gMuro = new THREE.Group(); scene.add(gMuro);
-box(4.1, 1.25, 0.35, M.muroCimento, -2.7, 0.62, 10, gMuro);      // troço esquerdo
-box(1.6, 1.25, 0.35, M.muroCimento, 1.25, 0.62, 10, gMuro);      // entre portões
-box(2.7, 1.5, 0.1, M.chapaCinza, 3.4, 0.78, 10, gMuro);          // portão automóvel (passagem)
-box(1.1, 1.5, 0.08, M.chapaCinza, -0.1, 0.78, 10, gMuro);        // portão pedonal
+box(1.9, 1.25, 0.35, M.muroCimento, -2.9, 0.62, 10, gMuro);      // troço esquerdo
+box(1.25, 1.25, 0.35, M.muroCimento, 1.47, 0.62, 10, gMuro);     // entre portões
+box(0.75, 1.25, 0.35, M.muroCimento, 3.47, 0.62, 10, gMuro);     // troço direito
+box(2.8, 1.5, 0.1, M.chapaCinza, -0.55, 0.78, 10, gMuro);        // portão automóvel (alinhado c/ o carport)
+box(1.0, 1.5, 0.08, M.chapaCinza, 2.6, 0.78, 10, gMuro);         // portão pedonal (alinhado c/ a passagem)
 box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x1 + 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
 box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x2 - 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
-// capeamento escuro nos muros + ripado horizontal nos portões + sebes
-box(4.15, 0.06, 0.42, M.caixilho, -2.7, 1.28, 10, gMuro);
-box(1.65, 0.06, 0.42, M.caixilho, 1.25, 1.28, 10, gMuro);
+// capeamento escuro + ripado dos portões + sebe
+box(1.95, 0.06, 0.42, M.caixilho, -2.9, 1.28, 10, gMuro);
+box(1.3, 0.06, 0.42, M.caixilho, 1.47, 1.28, 10, gMuro);
+box(0.8, 0.06, 0.42, M.caixilho, 3.47, 1.28, 10, gMuro);
 for (let i = 0; i < 3; i++){
-  box(2.68, 0.03, 0.12, M.caixilho, 3.4, 0.35 + i*0.4, 10, gMuro);
-  box(1.08, 0.03, 0.1, M.caixilho, -0.1, 0.35 + i*0.4, 10, gMuro);
+  box(2.78, 0.03, 0.12, M.caixilho, -0.55, 0.35 + i*0.4, 10, gMuro);
+  box(0.98, 0.03, 0.1, M.caixilho, 2.6, 0.35 + i*0.4, 10, gMuro);
 }
-box(3.6, 0.6, 0.4, M.folha, -2.7, 0.42, 9.35, gMuro);
-box(1.3, 0.5, 0.35, M.folha, 1.25, 0.37, 9.4, gMuro);
+box(1.6, 0.6, 0.4, M.folha, -2.9, 0.42, 9.35, gMuro);
 
-// PASSAGEM lateral em calçada (da rua até ao fundo utilizável) + caminho pedonal
-box(2.6, 0.06, 18, M.calcadaEntrada, 3.4, 0.05, 1.0);            // z -8..10
-box(1.3, 0.06, 4.2, M.calcadaEntrada, -0.1, 0.05, 7.9);          // do portão pedonal
-box(2.2, 0.06, 1.3, M.calcadaEntrada, 0.35, 0.05, 5.2);          // ligação à porta
+// acesso: faixa automóvel da rua ao carport (frente) + pedonal p/ porta e passagem lateral
+box(2.6, 0.06, 8.6, M.calcadaEntrada, -0.55, 0.05, 5.6);         // carros: z 1.3..10
+box(1.0, 0.06, 5.2, M.calcadaEntrada, 2.6, 0.05, 7.4);           // pedonal do portão
+box(1.7, 0.06, 1.2, M.calcadaEntrada, 1.9, 0.05, 4.2);           // ligação à porta
+box(1.0, 0.06, 32, M.calcadaEntrada, 3.3, 0.05, -11.5);          // passagem pedonal lateral até ao fundo
 
 // ============================================================
 // CASA — 6,8 (frente) × 11,5 (fundo), betão à vista + base de xisto
 // Grupos deslocados (HX, 0, HZ); coords locais centradas na casa
 // ============================================================
-const LX = 6.8, LZ = 10.3, H0 = 2.9, LAJE = 0.3, H1 = 2.9;
+const LX = 6.6, LZ = 10.6, H0 = 2.9, LAJE = 0.3, H1 = 2.9;  // 6,6×10,6 ≈ 70 m²/piso
 const y1 = H0 + LAJE, topo = y1 + H1;
 const gExterior = new THREE.Group(); scene.add(gExterior);
 const gShell0 = new THREE.Group(); scene.add(gShell0);
@@ -478,14 +480,13 @@ box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z + (L1Z + 0.5)/2 - 0
 box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z - (L1Z + 0.5)/2 + 0.05, gExterior);
 box(0.12, 0.05, L1Z + 0.54, M.caixilho, (L1X + 0.5)/2 - 0.05, topo + 0.345, c1z, gExterior);
 box(0.12, 0.05, L1Z + 0.54, M.caixilho, -(L1X + 0.5)/2 + 0.05, topo + 0.345, c1z, gExterior);
-// lateral passagem piso 1: SÓ a janela da escada (luz do vão)
-vao(1.2, 1.4, L1X/2 + 0.12, y1 + 1.6, 0.1, Math.PI/2, gExterior);
+// lateral passagem piso 1: fresta ALTA da escada (estrema a ~1,1 m → só frestas ≥1,8 m de altura são legais)
+vao(1.6, 0.5, L1X/2 + 0.12, y1 + 2.15, 0.1, Math.PI/2, gExterior);
 
-// ---- Coberto FASE 1: só a zona dos carros (junto ao portão) ----
-// (extensão da pala até ao fundo + cobertura do terraço ficam para 2ª fase)
+// ---- Coberto FASE 1: 2 carros EM LINHA à FRENTE da casa (no recuo) ----
 const carport = new THREE.Group(); gExterior.add(carport);
-const cpX = 3.4 - HX, cpW = 2.55, cpH = 2.3;
-const cpZ1 = 4.0 - HZ, cpZ2 = -3.0 - HZ;          // coords locais (mundo: z 4.0 → -3.0) — começa na LINHA DA CASA, ~7 m = 2 carros
+const cpX = -0.55 - HX, cpW = 2.6, cpH = 2.3;
+const cpZ1 = 9.3 - HZ, cpZ2 = 1.8 - HZ;           // mundo: z 9.3 → 1.8 (~7,5 m = 2 carros em linha)
 const cpD = cpZ1 - cpZ2, cpZ = (cpZ1 + cpZ2)/2;
 box(cpW + 0.15, 0.14, cpD, M.chapaCinza, cpX, cpH + 0.07, cpZ, carport);
 for (let z = cpZ2 + 0.3; z <= cpZ1 - 0.2; z += (cpD - 0.6)/2){
@@ -494,7 +495,7 @@ for (let z = cpZ2 + 0.3; z <= cpZ1 - 0.2; z += (cpD - 0.6)/2){
 }
 // TERRAÇO traseiro em CALÇADA (igual à entrada dos carros): a toda a largura,
 // à frente do envidraçado da sala. Descoberto — cobertura fica p/ 2ª fase.
-box(9.45, 0.1, 3.5, M.calcadaEntrada, 1.325, 0.09, -LZ/2 - 1.75, gExterior);
+box(7.2, 0.1, 3.5, M.calcadaEntrada, 0.55, 0.09, -LZ/2 - 1.75, gExterior);
 
 // ============================================================
 // ENVOLVENTE — vizinhos (lotes igualmente estreitos), oliveiras
@@ -511,10 +512,10 @@ function casaVizinha(x, z, w, d, rot, alt=3.2, mat){
   g.position.set(x, 0, z); g.rotation.y = rot || 0;
   gViz.add(g);
 }
-casaVizinha(-8.9, 1.5, 7.5, 8, 0.02, 5.6);                 // nº 123 (2 pisos, encostado à estrema)
-casaVizinha(-8.6, -13, 6, 5, 0.06, 2.6);                   // anexo do vizinho
-casaVizinha(8.7, -0.5, 7.5, 9, 0, 6.4, M.vizinhoCinza);    // casa cinzenta alta (outro lado da passagem)
-casaVizinha(11.5, -15, 7, 7, -0.2, 3.2);
+casaVizinha(-7.6, 1.5, 7.5, 8, 0.02, 5.6);                 // nº 123 (2 pisos, encostado à estrema)
+casaVizinha(-7.7, -13, 6, 5, 0.06, 2.6);                   // anexo do vizinho
+casaVizinha(7.75, -0.5, 7.5, 9, 0, 6.4, M.vizinhoCinza);   // casa cinzenta alta (do outro lado)
+casaVizinha(10.2, -18, 7, 7, -0.2, 3.2);
 
 function oliveira(x, z, s=1){
   const g = new THREE.Group();
@@ -532,10 +533,12 @@ function oliveira(x, z, s=1){
 oliveira(-3.4, 6.8, 0.85);
 oliveira(-2.6, -13, 1.1);
 oliveira(2.4, -17.5, 1.0);
-oliveira(-2.9, -20, 1.15);
+oliveira(-2.7, -20, 1.15);
 oliveira(2.2, -24, 1.05);
-oliveira(-2.4, -26.5, 0.95);
-oliveira(8.5, 6.5, 1.1);    // fora do lote, junto à rua
+oliveira(-2.4, -27, 0.95);
+oliveira(2.0, -31, 1.1);
+oliveira(-2.2, -34.5, 1.0);
+oliveira(7.4, 7.2, 1.1);    // fora do lote, junto à rua
 oliveira(-9.5, 8, 0.9);
 function arbusto(x, z, s=1){
   for (let i = 0; i < 3; i++){
@@ -544,8 +547,8 @@ function arbusto(x, z, s=1){
     a.scale.y = 0.75; a.castShadow = true; scene.add(a);
   }
 }
-arbusto(-2.6, 4.6, 1.1); arbusto(-3.9, 5.4, 0.9); arbusto(-4.0, -6, 1.0);
-arbusto(3.8, -12, 0.9); arbusto(-3.5, -18.5, 1.0);
+arbusto(-2.6, 3.2, 1.1); arbusto(-3.3, 5.6, 0.9); arbusto(-3.3, -6, 1.0);
+arbusto(3.3, -12, 0.9); arbusto(-3.2, -18.5, 1.0);
 
 // ============================================================
 // ETIQUETAS + PLANTAS (vistas Piso 0 / Piso 1)
@@ -585,10 +588,10 @@ function planta(grupo, yBase, divisorias, etiquetas){
 // Piso 0 — hall/escada/WC/lavandaria em coluna à direita (frente),
 // sala+jantar+cozinha em L aberto para o fundo (jardim)
 planta(gMaq0, 0, [
-  [-0.4, 1.85, -0.4, 5.15],   // corredor | cozinha (hall e corredor abertos entre si)
-  [0.6, 3.55, 3.4, 3.55],     // hall / WC serviço
-  [0.6, 2.45, 3.4, 2.45],     // WC serviço | lavandaria (um atrás do outro)
-  [0.6, 1.35, 3.4, 1.35],     // lavandaria / escada aberta
+  [-0.4, 1.85, -0.4, 5.3],   // corredor | cozinha (hall e corredor abertos entre si)
+  [0.6, 3.55, 3.3, 3.55],     // hall / WC serviço
+  [0.6, 2.45, 3.3, 2.45],     // WC serviço | lavandaria (um atrás do outro)
+  [0.6, 1.35, 3.3, 1.35],     // lavandaria / escada aberta
   [0.6, 1.35, 0.6, 1.6],      // ombreiras — portas individuais p/ o corredor
   [0.6, 2.2, 0.6, 2.7],
   [0.6, 3.3, 0.6, 3.55]
@@ -604,17 +607,17 @@ planta(gMaq0, 0, [
 // (ilha da cozinha desenhada no bloco de mobiliário)
 // Piso 1 — suite ao fundo, quartos à frente/meio, WCs e corredor à direita
 planta(gMaq1, y1, [
-  [-3.4, 1.85, -1.0, 1.85],   // frente dos quartos c/ PORTAS p/ o corredor
+  [-3.3, 1.85, -1.0, 1.85],   // frente dos quartos c/ PORTAS p/ o corredor
   [-0.3, 1.85, 1.0, 1.85],
-  [1.7, 1.85, 3.4, 1.85],
-  [0, 1.85, 0, 5.15],         // quarto 2 | quarto 3 (lado a lado, rua)
-  [-3.4, 1.15, -2.9, 1.15],   // WC família c/ porta p/ o corredor
+  [1.7, 1.85, 3.3, 1.85],
+  [0, 1.85, 0, 5.3],         // quarto 2 | quarto 3 (lado a lado, rua)
+  [-3.3, 1.15, -2.9, 1.15],   // WC família c/ porta p/ o corredor
   [-2.2, 1.15, -1.2, 1.15],
   [-1.2, -0.9, -1.2, 1.15],   // WC família | corredor
-  [-3.4, -0.9, -0.7, -0.9],   // suite c/ porta a partir do corredor
-  [0.6, -0.9, 3.4, -0.9],
-  [1.2, -5.15, 1.2, -3.35],   // WC suite
-  [1.2, -3.35, 3.4, -3.35]
+  [-3.3, -0.9, -0.7, -0.9],   // suite c/ porta a partir do corredor
+  [0.6, -0.9, 3.3, -0.9],
+  [1.2, -5.3, 1.2, -3.35],   // WC suite
+  [1.2, -3.35, 3.3, -3.35]
 ], [
   ['Quarto 2', '~11 m²', -1.7, 3.7, 0.95],
   ['Quarto 3', '~11 m²', 1.7, 3.7, 0.95],
@@ -710,7 +713,7 @@ function carro(parent, x, z, rot){
 
 // ---- Piso 0 ----
 bancada(gMaq0, -1.95, 4.72, 0, 2.6);                 // cozinha: bancada na parede da rua
-bancada(gMaq0, -3.02, 3.15, Math.PI/2, 2.5);         // bancada na empena
+bancada(gMaq0, -2.9, 3.15, Math.PI/2, 2.5);          // bancada na empena
 armarioAlto(gMaq0, -0.85, 4.7);                      // frigorífico/coluna
 bancada(gMaq0, -1.9, 1.85, 0, 2.0);                  // ilha
 mesa(gMaq0, -1.3, -0.5, 0, 1.8, 0.95);               // jantar
@@ -718,29 +721,29 @@ cadeira(gMaq0, -1.9, 0.15, Math.PI); cadeira(gMaq0, -0.7, 0.15, Math.PI);
 cadeira(gMaq0, -1.9, -1.15, 0); cadeira(gMaq0, -0.7, -1.15, 0);
 box(2.6, 0.02, 1.9, F.tapete, -1.3, 0.14, -3.5, gMaq0);
 sofa(gMaq0, -0.5, -3.5, -Math.PI/2);                 // sala virada à TV (empena)
-box(0.45, 0.5, 1.8, F.madeiraEscura, -3.05, 0.37, -3.5, gMaq0);
-box(0.06, 0.8, 1.5, F.antracite, -3.24, 1.15, -3.5, gMaq0);   // TV (à face da parede)
-sanita(gMaq0, 2.95, 3.0, Math.PI/2); lavatorio(gMaq0, 1.2, 3.05, -Math.PI/2);   // WC serviço
-maquina(gMaq0, 2.95, 1.9); lavatorio(gMaq0, 1.2, 1.9, -Math.PI/2);              // lavandaria
+box(0.45, 0.5, 1.8, F.madeiraEscura, -2.95, 0.37, -3.5, gMaq0);
+box(0.06, 0.8, 1.5, F.antracite, -3.14, 1.15, -3.5, gMaq0);   // TV (à face da parede)
+sanita(gMaq0, 2.85, 3.0, Math.PI/2); lavatorio(gMaq0, 1.2, 3.05, -Math.PI/2);   // WC serviço
+maquina(gMaq0, 2.85, 1.9); lavatorio(gMaq0, 1.2, 1.9, -Math.PI/2);              // lavandaria
 for (let i = 0; i < 7; i++){                          // degraus da escada
   box(1.0, 0.13*(i+1), 0.26, M.laje, 2.9, 0.065*(i+1) + 0.12, -0.15 + i*0.24, gMaq0);
 }
 
 // ---- Piso 1 (mobília à cota y1) ----
 const gMob1 = new THREE.Group(); gMob1.position.y = y1; gMaq1.add(gMob1);
-cama(gMob1, -2.3, -3.0, Math.PI/2, 1.6, 2.0);        // suite (cabeceira na empena)
-mesinha(gMob1, -3.1, -4.05); mesinha(gMob1, -3.1, -1.95);
-cama(gMob1, -2.35, 3.7, Math.PI/2, 1.4, 1.95);       // quarto 2
-mesinha(gMob1, -3.15, 4.75);
+cama(gMob1, -2.15, -3.0, Math.PI/2, 1.6, 2.0);       // suite (cabeceira na empena)
+mesinha(gMob1, -2.95, -4.05); mesinha(gMob1, -2.95, -1.95);
+cama(gMob1, -2.2, 3.7, Math.PI/2, 1.4, 1.95);        // quarto 2
+mesinha(gMob1, -3.0, 4.8);
 mesa(gMob1, -0.35, 4.35, Math.PI/2, 1.1, 0.5);       // secretária q2 (contra a divisória)
-cama(gMob1, 2.35, 3.7, -Math.PI/2, 1.4, 1.95);       // quarto 3
-mesinha(gMob1, 3.15, 4.75);
+cama(gMob1, 2.2, 3.7, -Math.PI/2, 1.4, 1.95);        // quarto 3
+mesinha(gMob1, 3.0, 4.8);
 mesa(gMob1, 0.35, 4.35, Math.PI/2, 1.1, 0.5);        // secretária q3 (contra a divisória)
-sanita(gMob1, -2.9, 0.75, 0); lavatorio(gMob1, -1.6, 0.85, 0); duche(gMob1, -2.9, -0.45);   // WC família
+sanita(gMob1, -2.8, 0.75, 0); lavatorio(gMob1, -1.6, 0.85, 0); duche(gMob1, -2.8, -0.45);   // WC família
 sanita(gMob1, 2.0, -3.75, 0); lavatorio(gMob1, 2.9, -3.75, 0); duche(gMob1, 1.75, -4.65);   // WC suite
 
 // ---- Exterior ----
-carro(gExterior, 3.4 - HX, 0.5 - HZ, 0);             // carro debaixo do coberto
+carro(gExterior, -0.55 - HX, 6.9 - HZ, 0);           // carro debaixo do coberto (frente)
 mesa(gExterior, 0.4, -LZ/2 - 1.7, 0, 1.5, 0.85);     // mesa no terraço
 cadeira(gExterior, -0.3, -LZ/2 - 1.0, Math.PI); cadeira(gExterior, 1.1, -LZ/2 - 1.0, Math.PI);
 cadeira(gExterior, -0.3, -LZ/2 - 2.4, 0); cadeira(gExterior, 1.1, -LZ/2 - 2.4, 0);
@@ -757,9 +760,9 @@ function vista(modo){
   gMaq1.visible    = (modo === 'p1');
   Object.values(btns).forEach(b => b.classList.remove('ativo'));
   btns[modo].classList.add('ativo');
-  if (modo === 'ext'){ camera.position.set(9.5, 4.8, 22); controls.target.set(-1.2, 2.8, -1); }
-  if (modo === 'p0'){ camera.position.set(0.2, 17, 5); controls.target.set(-1.3, 0.4, -1.75); }
-  if (modo === 'p1'){ camera.position.set(0.2, 19.5, 4.5); controls.target.set(-1.3, y1 + 0.4, -1.75); }
+  if (modo === 'ext'){ camera.position.set(9, 4.8, 19); controls.target.set(-0.5, 2.8, -2.5); }
+  if (modo === 'p0'){ camera.position.set(0.5, 17, 1.8); controls.target.set(-0.55, 0.4, -3.95); }
+  if (modo === 'p1'){ camera.position.set(0.5, 19.5, 1.3); controls.target.set(-0.55, y1 + 0.4, -3.95); }
 }
 btnExt.onclick = () => vista('ext');
 btnP0.onclick = () => vista('p0');
