@@ -58,7 +58,7 @@
 
     <div class="bloco">
       <h2>Resumo</h2>
-      <div class="linha"><span>Lote (est. fotos)</span><b>~9,5 × 30 m (~285 m²)</b></div>
+      <div class="linha"><span>Lote (365 m² confirmados)</span><b>~9,5 × 38,5 m</b></div>
       <div class="linha"><span>Tipologia</span><b>T3, 2 pisos</b></div>
       <div class="linha"><span>Implantação</span><b>6,8 × 10,3 m</b></div>
       <div class="linha"><span>Área bruta</span><b>~140 m² (70 / piso)</b></div>
@@ -349,7 +349,7 @@ function box(w, h, d, mat, x, y, z, parent){
 // TERRENO — lote ESTREITO ~9,5 × 45 m, rua a +Z (frente)
 // X: -4.75 .. 4.75   |   Z: -35 .. 10 (estrema da rua em z=10)
 // ============================================================
-const LOTE = { x1:-4.75, x2:4.75, z1:-20, z2:10 };
+const LOTE = { x1:-4.75, x2:4.75, z1:-28.5, z2:10 };  // 365 m² confirmados (9,5 × 38,5)
 const HX = -1.35, HZ = -1.15; // casa encostada à estrema esquerda, recuada ~6 m da rua
 // passagem lateral: x 2.05..4.75 (~2,7 m)
 
@@ -532,7 +532,9 @@ function oliveira(x, z, s=1){
 oliveira(-3.4, 6.8, 0.85);
 oliveira(-2.6, -13, 1.1);
 oliveira(2.4, -17.5, 1.0);
-oliveira(-2.9, -18, 1.15);
+oliveira(-2.9, -20, 1.15);
+oliveira(2.2, -24, 1.05);
+oliveira(-2.4, -26.5, 0.95);
 oliveira(8.5, 6.5, 1.1);    // fora do lote, junto à rua
 oliveira(-9.5, 8, 0.9);
 function arbusto(x, z, s=1){
