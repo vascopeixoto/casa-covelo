@@ -58,15 +58,16 @@
 
     <div class="bloco">
       <h2>Resumo</h2>
-      <div class="linha"><span>Lote (365 m² confirmados)</span><b>~7,7 × 47 m</b></div>
+      <div class="linha"><span>Lote (medido Google Earth)</span><b>9,8 × ~36,7 m (354 m²)</b></div>
+      <div class="linha"><span>Desnível</span><b>~4 m a descer p/ o fundo</b></div>
       <div class="linha"><span>Tipologia</span><b>T3, 2 pisos</b></div>
       <div class="linha"><span>Implantação</span><b>6,6 × 10,6 m</b></div>
       <div class="linha"><span>Área bruta</span><b>~140 m² (70 / piso)</b></div>
       <div class="linha"><span>Acabamento</span><b>Reboco pintado (económico)</b></div>
       <div class="linha"><span>Vãos</span><b>Grandes, caixilharia standard, c/ acesso ext.</b></div>
       <div class="linha"><span>Implantação no lote</span><b>Encostada à estrema poente</b></div>
-      <div class="linha"><span>Passagem lateral p/ trás</span><b>~1,1 m PEDONAL (nascente)</b></div>
-      <div class="linha"><span>Carport (fase 1)</span><b>2 carros em linha, à FRENTE</b></div>
+      <div class="linha"><span>Passagem lateral p/ trás</span><b>~3,1 m, carro passa (nascente)</b></div>
+      <div class="linha"><span>Carport (fase 1)</span><b>2 carros em linha, na passagem</b></div>
       <div class="linha"><span>Terraço traseiro (calçada, descoberto)</span><b>~33 m²</b></div>
     </div>
 
@@ -349,9 +350,9 @@ function box(w, h, d, mat, x, y, z, parent){
 // TERRENO — lote ESTREITO ~9,5 × 45 m, rua a +Z (frente)
 // X: -4.75 .. 4.75   |   Z: -35 .. 10 (estrema da rua em z=10)
 // ============================================================
-const LOTE = { x1:-3.85, x2:3.85, z1:-37.4, z2:10 };  // 365 m² confirmados (7,7 × 47,4 — frente = 2× C3)
-const HX = -0.55, HZ = -3.95; // casa 6,6 encostada à estrema esquerda, recuo ~8,8 m (2 carros em linha à frente)
-// passagem lateral PEDONAL: x 2.75..3.85 (~1,1 m)
+const LOTE = { x1:-4.85, x2:4.85, z1:-26.7, z2:10 };  // MEDIDO Google Earth: 9,79 frente × ~36,7 = 353,9 m²
+const HX = -1.55, HZ = -1.3;  // casa 6,6 encostada à estrema esquerda (nº123), recuo ~6 m
+// passagem lateral de CARRO: x 1.75..4.85 (~3,1 m). Desnível real: rua 22,4 m → fundo 18,3 m (~-4 m)
 
 const chao = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), M.relva);
 chao.rotation.x = -Math.PI/2; chao.position.y = -0.02; chao.receiveShadow = true;
@@ -375,30 +376,26 @@ linhaLote(LOTE.x2-LOTE.x1 + 0.2, 0.18, (LOTE.x1+LOTE.x2)/2, LOTE.z2);
 linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x1, (LOTE.z1+LOTE.z2)/2);
 linhaLote(0.18, LOTE.z2-LOTE.z1, LOTE.x2, (LOTE.z1+LOTE.z2)/2);
 
-// muro em betão/reboco na frente: portão automóvel central + pedonal junto à passagem
+// muro em betão/reboco na frente: portão automóvel na passagem + pedonal ao centro
 const gMuro = new THREE.Group(); scene.add(gMuro);
-box(1.9, 1.25, 0.35, M.muroCimento, -2.9, 0.62, 10, gMuro);      // troço esquerdo
-box(1.25, 1.25, 0.35, M.muroCimento, 1.47, 0.62, 10, gMuro);     // entre portões
-box(0.75, 1.25, 0.35, M.muroCimento, 3.47, 0.62, 10, gMuro);     // troço direito
-box(2.8, 1.5, 0.1, M.chapaCinza, -0.55, 0.78, 10, gMuro);        // portão automóvel (alinhado c/ o carport)
-box(1.0, 1.5, 0.08, M.chapaCinza, 2.6, 0.78, 10, gMuro);         // portão pedonal (alinhado c/ a passagem)
+box(4.75, 1.25, 0.35, M.muroCimento, -2.47, 0.62, 10, gMuro);    // troço esquerdo
+box(0.95, 1.25, 0.35, M.muroCimento, 1.37, 0.62, 10, gMuro);     // entre portões
+box(2.9, 1.5, 0.1, M.chapaCinza, 3.3, 0.78, 10, gMuro);          // portão automóvel (alinhado c/ a passagem)
+box(1.0, 1.5, 0.08, M.chapaCinza, 0.4, 0.78, 10, gMuro);         // portão pedonal (alinhado c/ a porta)
 box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x1 + 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
 box(0.3, 0.9, LOTE.z2-LOTE.z1, M.muroCimento, LOTE.x2 - 0.15, 0.45, (LOTE.z1+LOTE.z2)/2, gMuro);
 // capeamento escuro + ripado dos portões + sebe
-box(1.95, 0.06, 0.42, M.caixilho, -2.9, 1.28, 10, gMuro);
-box(1.3, 0.06, 0.42, M.caixilho, 1.47, 1.28, 10, gMuro);
-box(0.8, 0.06, 0.42, M.caixilho, 3.47, 1.28, 10, gMuro);
+box(4.8, 0.06, 0.42, M.caixilho, -2.47, 1.28, 10, gMuro);
+box(1.0, 0.06, 0.42, M.caixilho, 1.37, 1.28, 10, gMuro);
 for (let i = 0; i < 3; i++){
-  box(2.78, 0.03, 0.12, M.caixilho, -0.55, 0.35 + i*0.4, 10, gMuro);
-  box(0.98, 0.03, 0.1, M.caixilho, 2.6, 0.35 + i*0.4, 10, gMuro);
+  box(2.88, 0.03, 0.12, M.caixilho, 3.3, 0.35 + i*0.4, 10, gMuro);
+  box(0.98, 0.03, 0.1, M.caixilho, 0.4, 0.35 + i*0.4, 10, gMuro);
 }
-box(1.6, 0.6, 0.4, M.folha, -2.9, 0.42, 9.35, gMuro);
+box(3.2, 0.6, 0.4, M.folha, -3.0, 0.42, 9.35, gMuro);
 
-// acesso: faixa automóvel da rua ao carport (frente) + pedonal p/ porta e passagem lateral
-box(2.6, 0.06, 8.6, M.calcadaEntrada, -0.55, 0.05, 5.6);         // carros: z 1.3..10
-box(1.0, 0.06, 5.2, M.calcadaEntrada, 2.6, 0.05, 7.4);           // pedonal do portão
-box(1.7, 0.06, 1.2, M.calcadaEntrada, 1.9, 0.05, 4.2);           // ligação à porta
-box(1.0, 0.06, 32, M.calcadaEntrada, 3.3, 0.05, -11.5);          // passagem pedonal lateral até ao fundo
+// acesso: faixa automóvel na passagem (rua → carport lateral) + pedonal p/ porta
+box(2.9, 0.06, 13, M.calcadaEntrada, 3.3, 0.05, 3.5);            // carros: z -3..10
+box(1.0, 0.06, 6.0, M.calcadaEntrada, 0.4, 0.05, 7.0);           // pedonal do portão à porta
 
 // ============================================================
 // CASA — 6,8 (frente) × 11,5 (fundo), betão à vista + base de xisto
@@ -480,13 +477,13 @@ box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z + (L1Z + 0.5)/2 - 0
 box(L1X + 0.54, 0.05, 0.12, M.caixilho, 0, topo + 0.345, c1z - (L1Z + 0.5)/2 + 0.05, gExterior);
 box(0.12, 0.05, L1Z + 0.54, M.caixilho, (L1X + 0.5)/2 - 0.05, topo + 0.345, c1z, gExterior);
 box(0.12, 0.05, L1Z + 0.54, M.caixilho, -(L1X + 0.5)/2 + 0.05, topo + 0.345, c1z, gExterior);
-// lateral passagem piso 1: fresta ALTA da escada (estrema a ~1,1 m → só frestas ≥1,8 m de altura são legais)
-vao(1.6, 0.5, L1X/2 + 0.12, y1 + 2.15, 0.1, Math.PI/2, gExterior);
+// lateral passagem piso 1: janela da escada (estrema a ~3,1 m → janela normal legal)
+vao(1.2, 1.4, L1X/2 + 0.12, y1 + 1.6, 0.1, Math.PI/2, gExterior);
 
-// ---- Coberto FASE 1: 2 carros EM LINHA à FRENTE da casa (no recuo) ----
+// ---- Coberto FASE 1: 2 carros em linha na PASSAGEM lateral, desde a linha da casa ----
 const carport = new THREE.Group(); gExterior.add(carport);
-const cpX = -0.55 - HX, cpW = 2.6, cpH = 2.3;
-const cpZ1 = 9.3 - HZ, cpZ2 = 1.8 - HZ;           // mundo: z 9.3 → 1.8 (~7,5 m = 2 carros em linha)
+const cpX = 3.3 - HX, cpW = 2.6, cpH = 2.3;
+const cpZ1 = 4.0 - HZ, cpZ2 = -3.2 - HZ;          // mundo: z 4.0 → -3.2 (~7,2 m = 2 carros)
 const cpD = cpZ1 - cpZ2, cpZ = (cpZ1 + cpZ2)/2;
 box(cpW + 0.15, 0.14, cpD, M.chapaCinza, cpX, cpH + 0.07, cpZ, carport);
 for (let z = cpZ2 + 0.3; z <= cpZ1 - 0.2; z += (cpD - 0.6)/2){
@@ -495,7 +492,7 @@ for (let z = cpZ2 + 0.3; z <= cpZ1 - 0.2; z += (cpD - 0.6)/2){
 }
 // TERRAÇO traseiro em CALÇADA (igual à entrada dos carros): a toda a largura,
 // à frente do envidraçado da sala. Descoberto — cobertura fica p/ 2ª fase.
-box(7.2, 0.1, 3.5, M.calcadaEntrada, 0.55, 0.09, -LZ/2 - 1.75, gExterior);
+box(9.0, 0.1, 3.5, M.calcadaEntrada, 1.4, 0.09, -LZ/2 - 1.75, gExterior);
 
 // ============================================================
 // ENVOLVENTE — vizinhos (lotes igualmente estreitos), oliveiras
@@ -512,10 +509,10 @@ function casaVizinha(x, z, w, d, rot, alt=3.2, mat){
   g.position.set(x, 0, z); g.rotation.y = rot || 0;
   gViz.add(g);
 }
-casaVizinha(-7.6, 1.5, 7.5, 8, 0.02, 5.6);                 // nº 123 (2 pisos, encostado à estrema)
-casaVizinha(-7.7, -13, 6, 5, 0.06, 2.6);                   // anexo do vizinho
-casaVizinha(7.75, -0.5, 7.5, 9, 0, 6.4, M.vizinhoCinza);   // casa cinzenta alta (do outro lado)
-casaVizinha(10.2, -18, 7, 7, -0.2, 3.2);
+casaVizinha(-8.6, 1.5, 7.5, 8, 0.02, 5.6);                 // nº 123 (2 pisos, encostado à estrema)
+casaVizinha(-8.6, -13, 6, 5, 0.06, 2.6);                   // anexo do vizinho
+casaVizinha(8.8, -0.5, 7.5, 9, 0, 6.4, M.vizinhoCinza);    // casa cinzenta alta (do outro lado)
+casaVizinha(11, -18, 7, 7, -0.2, 3.2);
 
 function oliveira(x, z, s=1){
   const g = new THREE.Group();
@@ -534,10 +531,8 @@ oliveira(-3.4, 6.8, 0.85);
 oliveira(-2.6, -13, 1.1);
 oliveira(2.4, -17.5, 1.0);
 oliveira(-2.7, -20, 1.15);
-oliveira(2.2, -24, 1.05);
-oliveira(-2.4, -27, 0.95);
-oliveira(2.0, -31, 1.1);
-oliveira(-2.2, -34.5, 1.0);
+oliveira(2.2, -22.5, 1.05);
+oliveira(-2.4, -25, 0.95);
 oliveira(7.4, 7.2, 1.1);    // fora do lote, junto à rua
 oliveira(-9.5, 8, 0.9);
 function arbusto(x, z, s=1){
@@ -743,7 +738,7 @@ sanita(gMob1, -2.8, 0.75, 0); lavatorio(gMob1, -1.6, 0.85, 0); duche(gMob1, -2.8
 sanita(gMob1, 2.0, -3.75, 0); lavatorio(gMob1, 2.9, -3.75, 0); duche(gMob1, 1.75, -4.65);   // WC suite
 
 // ---- Exterior ----
-carro(gExterior, -0.55 - HX, 6.9 - HZ, 0);           // carro debaixo do coberto (frente)
+carro(gExterior, 3.3 - HX, 0.6 - HZ, 0);             // carro debaixo do coberto (passagem)
 mesa(gExterior, 0.4, -LZ/2 - 1.7, 0, 1.5, 0.85);     // mesa no terraço
 cadeira(gExterior, -0.3, -LZ/2 - 1.0, Math.PI); cadeira(gExterior, 1.1, -LZ/2 - 1.0, Math.PI);
 cadeira(gExterior, -0.3, -LZ/2 - 2.4, 0); cadeira(gExterior, 1.1, -LZ/2 - 2.4, 0);
@@ -760,9 +755,9 @@ function vista(modo){
   gMaq1.visible    = (modo === 'p1');
   Object.values(btns).forEach(b => b.classList.remove('ativo'));
   btns[modo].classList.add('ativo');
-  if (modo === 'ext'){ camera.position.set(9, 4.8, 19); controls.target.set(-0.5, 2.8, -2.5); }
-  if (modo === 'p0'){ camera.position.set(0.5, 17, 1.8); controls.target.set(-0.55, 0.4, -3.95); }
-  if (modo === 'p1'){ camera.position.set(0.5, 19.5, 1.3); controls.target.set(-0.55, y1 + 0.4, -3.95); }
+  if (modo === 'ext'){ camera.position.set(9.5, 4.8, 20); controls.target.set(-1.0, 2.8, -1.5); }
+  if (modo === 'p0'){ camera.position.set(0.2, 17, 4.5); controls.target.set(-1.55, 0.4, -1.3); }
+  if (modo === 'p1'){ camera.position.set(0.2, 19.5, 4); controls.target.set(-1.55, y1 + 0.4, -1.3); }
 }
 btnExt.onclick = () => vista('ext');
 btnP0.onclick = () => vista('p0');
