@@ -112,6 +112,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { Sky } from 'three/addons/objects/Sky.js';
 
 const cont = document.getElementById('cena');
 const scene = new THREE.Scene();
@@ -127,16 +128,8 @@ cont.appendChild(renderer.domElement);
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-// céu em gradiente
-{
-  const cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
-  const c = cv.getContext('2d');
-  const g = c.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, '#7db3e0'); g.addColorStop(0.55, '#bcd6ea'); g.addColorStop(1, '#e8eef0');
-  c.fillStyle = g; c.fillRect(0, 0, 16, 512);
-  scene.background = new THREE.CanvasTexture(cv);
-  scene.fog = new THREE.Fog(0xdde6e8, 70, 160);
-}
+// céu ATMOSFÉRICO real (dispersão de Rayleigh) alinhado com o sol
+scene.fog = new THREE.Fog(0xdde6e8, 70, 160);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI/2 - 0.02;
@@ -162,6 +155,11 @@ sol.shadow.camera.top = 35; sol.shadow.camera.bottom = -35;
 sol.shadow.bias = -0.0004;
 scene.add(sol);
 scene.add(new THREE.HemisphereLight(0xcfe4f0, 0x9a8a70, 0.45));
+const sky = new Sky(); sky.scale.setScalar(420); scene.add(sky);
+const su = sky.material.uniforms;
+su.turbidity.value = 5.5; su.rayleigh.value = 1.7;
+su.mieCoefficient.value = 0.004; su.mieDirectionalG.value = 0.8;
+su.sunPosition.value.copy(sol.position.clone().normalize());
 
 // ---------- Texturas procedurais ----------
 function tex(draw, w=512, h=512, rx=1, ry=1){
@@ -305,13 +303,31 @@ function desenhaSoalho(c, w, h){
 }
 const texSoalho = tex(desenhaSoalho, 512, 512, 3, 5);
 
+// telha lusa (vizinhos)
+function desenhaTelha(c, w, h){
+  c.fillStyle = '#a56047'; c.fillRect(0, 0, w, h);
+  const n = 9, s = h/n;
+  for (let j = 0; j < n; j++){
+    const v = rnd(-10, 10);
+    c.fillStyle = `rgb(${165+v|0},${96+v|0},${71+v|0})`;
+    c.fillRect(0, j*s, w, s - 2);
+    c.fillStyle = 'rgba(60,30,20,0.35)'; c.fillRect(0, j*s, w, 4);
+    c.fillStyle = 'rgba(255,220,190,0.18)'; c.fillRect(0, j*s + s*0.45, w, 3);
+    const off = (j % 2) * 14;
+    c.fillStyle = 'rgba(70,35,25,0.4)';
+    for (let x = off; x < w; x += 28) c.fillRect(x, j*s, 2, s - 2);
+  }
+}
+const texTelha = tex(desenhaTelha, 512, 512, 3, 2);
+
 // ---------- Materiais ----------
 const M = {
   betao:   new THREE.MeshStandardMaterial({ map:texBetao, roughness:0.82 }),
   betaoLiso: new THREE.MeshStandardMaterial({ color:0xc4c1b9, roughness:0.85 }),
   xisto:   new THREE.MeshStandardMaterial({ map:texXisto, roughness:0.95 }),
   xistoMuro: new THREE.MeshStandardMaterial({ map:texXistoMuro, roughness:0.95 }),
-  reboco:  new THREE.MeshStandardMaterial({ map:texReboco, roughness:0.9 }),
+  reboco:  new THREE.MeshStandardMaterial({ map:texReboco, bumpMap:texReboco, bumpScale:1.4, roughness:0.9 }),
+  interiorEscuro: new THREE.MeshStandardMaterial({ color:0x14181d, roughness:0.95 }),
   vidro:   new THREE.MeshPhysicalMaterial({ color:0x2e4652, roughness:0.05, metalness:0.35, transparent:true, opacity:0.8, envMapIntensity:2.2 }),
   soco:    new THREE.MeshStandardMaterial({ color:0x4a4d4c, roughness:0.9 }),
   vidroVaranda: new THREE.MeshPhysicalMaterial({ color:0xbcd2da, roughness:0.05, transparent:true, opacity:0.3 }),
@@ -319,14 +335,14 @@ const M = {
   chapaCinza: new THREE.MeshStandardMaterial({ color:0x9aa0a2, roughness:0.5, metalness:0.6 }),
   relva:   new THREE.MeshStandardMaterial({ map:texRelva, roughness:1 }),
   relvaLote: new THREE.MeshStandardMaterial({ map:texRelvaLote, roughness:1 }),
-  calcada: new THREE.MeshStandardMaterial({ map:texCalcada, roughness:0.95 }),
-  calcadaEntrada: new THREE.MeshStandardMaterial({ map:texCalcadaEntrada, roughness:0.95 }),
+  calcada: new THREE.MeshStandardMaterial({ map:texCalcada, bumpMap:texCalcada, bumpScale:1.2, roughness:0.95 }),
+  calcadaEntrada: new THREE.MeshStandardMaterial({ map:texCalcadaEntrada, bumpMap:texCalcadaEntrada, bumpScale:1.2, roughness:0.95 }),
   deck:    new THREE.MeshStandardMaterial({ map:texDeck, roughness:0.7 }),
   tijoleira: new THREE.MeshStandardMaterial({ map:texTijoleira, roughness:0.9 }),
   laje:    new THREE.MeshStandardMaterial({ color:0xd6d2c8, roughness:0.9 }),
   parede:  new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.9 }),
   pavim:   new THREE.MeshStandardMaterial({ map:texSoalho, roughness:0.8 }),
-  telha:   new THREE.MeshStandardMaterial({ color:0xa96a4e, roughness:0.9 }),
+  telha:   new THREE.MeshStandardMaterial({ map:texTelha, bumpMap:texTelha, bumpScale:1.5, roughness:0.9 }),
   vizinho: new THREE.MeshStandardMaterial({ color:0xdfd9cc, roughness:0.9 }),
   vizinhoCinza: new THREE.MeshStandardMaterial({ color:0xa8a8a2, roughness:0.9 }),
   folhaOliveira: new THREE.MeshStandardMaterial({ color:0x7d8a66, roughness:0.95 }),
@@ -392,6 +408,21 @@ for (let i = 0; i < 3; i++){
   box(0.98, 0.03, 0.1, M.caixilho, 0.4, 0.35 + i*0.4, 10, gMuro);
 }
 box(3.2, 0.6, 0.4, M.folha, -3.0, 0.42, 9.35, gMuro);
+// caixa de correio inox no muro + flores no canteiro + candeeiro de rua
+box(0.34, 0.24, 0.14, M.chapaCinza, 1.62, 1.02, 9.9, gMuro);
+for (let i = 0; i < 12; i++){
+  const fl = new THREE.Mesh(new THREE.SphereGeometry(rnd(0.05, 0.09), 8, 6),
+    new THREE.MeshStandardMaterial({ color: [0xc95d7a, 0xd8c15a, 0xb46bb0][i % 3], roughness:0.8 }));
+  fl.position.set(rnd(-4.3, -1.8), rnd(0.55, 0.8), rnd(9.2, 9.5)); fl.castShadow = true; gMuro.add(fl);
+}
+{
+  const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.6, 10), M.caixilho);
+  poste.position.set(8.6, 2.3, 10.9); poste.castShadow = true; scene.add(poste);
+  const cabeca = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.22), M.caixilho);
+  cabeca.position.set(8.35, 4.6, 10.9); cabeca.castShadow = true; scene.add(cabeca);
+  const lum = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.14), new THREE.MeshStandardMaterial({ color:0xfff4d0, emissive:0xffe4a8, emissiveIntensity:0.5 }));
+  lum.position.set(8.3, 4.53, 10.9); scene.add(lum);
+}
 
 // acesso: faixa automóvel na passagem (rua → carport lateral) + pedonal p/ porta
 box(2.5, 0.06, 13, M.calcadaEntrada, 3.6, 0.05, 3.5);            // carros: z -3..10
@@ -416,6 +447,9 @@ box(LX + 0.12, H0, 0.09, M.baseCinza, 0, H0/2, -LZ/2 - 0.04, gShell0);  // tardo
 
 function vao(w, h, x, y, z, rotY, parent, matV){
   const g = new THREE.Group();
+  // "interior" escuro recuado — dá profundidade real ao vão visto de fora
+  const intr = new THREE.Mesh(new THREE.BoxGeometry(w - 0.06, h - 0.06, 0.3), M.interiorEscuro);
+  intr.position.z = -0.18; g.add(intr);
   const cx = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.12), M.caixilho); g.add(cx);
   const vd = new THREE.Mesh(new THREE.BoxGeometry(w - 0.12, h - 0.12, 0.05), matV || M.vidro);
   vd.position.z = 0.045; g.add(vd);
@@ -480,6 +514,36 @@ box(0.12, 0.05, L1Z + 0.54, M.caixilho, -(L1X + 0.5)/2 + 0.05, topo + 0.345, c1z
 // lateral passagem piso 1: janela da escada (estrema a ~3,1 m → janela normal legal)
 vao(1.2, 1.4, L1X/2 + 0.12, y1 + 1.6, 0.1, Math.PI/2, gExterior);
 
+// ---- Detalhe construtivo: tubos de queda, apliques, nº porta, grelha ----
+function tubo(x, z, parent){
+  const t = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, topo + 0.3, 10), M.chapaCinza);
+  t.position.set(x, (topo + 0.3)/2, z); t.castShadow = true; (parent || gExterior).add(t);
+}
+tubo(-L1X/2 + 0.18, c1z + L1Z/2 + 0.1);   // frente esq
+tubo(L1X/2 - 0.18, c1z + L1Z/2 + 0.1);    // frente dir
+tubo(-L1X/2 + 0.18, c1z - L1Z/2 - 0.1);   // tardoz esq
+tubo(L1X/2 - 0.18, c1z - L1Z/2 - 0.1);    // tardoz dir
+// apliques exteriores (junto à porta e no terraço)
+function aplique(x, y, z, rotY, parent){
+  const g = grupoLuz(x, y, z, rotY, parent);
+}
+function grupoLuz(x, y, z, rotY, parent){
+  const g = new THREE.Group();
+  box(0.09, 0.22, 0.09, M.caixilho, 0, 0, 0.03, g);
+  const lum = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.06, 0.07), new THREE.MeshStandardMaterial({ color:0xfff2cc, emissive:0xffdf9e, emissiveIntensity:0.7 }));
+  lum.position.set(0, -0.05, 0.03); g.add(lum);
+  g.position.set(x, y, z); g.rotation.y = rotY || 0;
+  (parent || gExterior).add(g); return g;
+}
+grupoLuz(1.25, 2.2, LZ/2 + 0.12, 0, gShell0);              // ao lado da porta
+grupoLuz(-1.5, 2.5, -LZ/2 - 0.12, Math.PI, gShell0);       // terraço
+grupoLuz(2.6, 2.5, -LZ/2 - 0.12, Math.PI, gShell0);        // terraço
+// número da porta + campainha
+box(0.16, 0.22, 0.03, M.branco2 || M.laje, 2.75, 1.9, LZ/2 + 0.12, gShell0);
+box(0.05, 0.05, 0.03, M.chapaCinza, 2.75, 1.45, LZ/2 + 0.12, gShell0);
+// grelha de drenagem à entrada do portão
+box(2.4, 0.03, 0.18, M.caixilho, 3.6 - HX, 0.1, 9.55 - HZ, gExterior);
+
 // ---- Coberto FASE 1: 2 carros em linha na PASSAGEM lateral, desde a linha da casa ----
 const carport = new THREE.Group(); gExterior.add(carport);
 const cpX = 3.6 - HX, cpW = 2.4, cpH = 2.3;
@@ -506,6 +570,15 @@ function casaVizinha(x, z, w, d, rot, alt=3.2, mat){
   const b = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.12, d*0.7), M.telha);
   b.position.set(0, alt + 0.65, d*0.25); b.rotation.x = -0.38; b.castShadow = true; g.add(b);
   box(w, 1.4, d*0.8, mat || M.vizinho, 0, alt + 0.4, 0, g);
+  // janelas simples nas duas fachadas longas (realismo da envolvente)
+  for (const sz of [1, -1]){
+    const n = Math.max(2, Math.round(w/3));
+    for (let i = 0; i < n; i++){
+      const wx = -w/2 + (i + 0.5) * (w/n);
+      box(1.0, 1.2, 0.06, M.vidro, wx, alt*0.55, sz*(d/2 + 0.02), g);
+      box(1.12, 1.32, 0.04, M.branco || M.laje, wx, alt*0.55, sz*(d/2 + 0.01), g);
+    }
+  }
   g.position.set(x, 0, z); g.rotation.y = rot || 0;
   gViz.add(g);
 }
@@ -740,6 +813,13 @@ sanita(gMob1, 2.0, -3.45, 0); lavatorio(gMob1, 2.95, -3.45, 0); duche(gMob1, 1.7
 // ---- Exterior ----
 carro(gExterior, 3.6 - HX, 0.6 - HZ, 0);             // carro debaixo do coberto (passagem)
 mesa(gExterior, 0.4, -LZ/2 - 1.7, 0, 1.5, 0.85);     // mesa no terraço
+// vasos de terracota no terraço
+[[-2.6, -LZ/2 - 1.2], [3.2, -LZ/2 - 2.6]].forEach(([vx, vz]) => {
+  const vaso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.34, 12), M.tijoleira);
+  vaso.position.set(vx, 0.31, vz); vaso.castShadow = true; gExterior.add(vaso);
+  const pl = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 8), M.folha);
+  pl.position.set(vx, 0.62, vz); pl.scale.y = 0.85; pl.castShadow = true; gExterior.add(pl);
+});
 cadeira(gExterior, -0.3, -LZ/2 - 1.0, Math.PI); cadeira(gExterior, 1.1, -LZ/2 - 1.0, Math.PI);
 cadeira(gExterior, -0.3, -LZ/2 - 2.4, 0); cadeira(gExterior, 1.1, -LZ/2 - 2.4, 0);
 
